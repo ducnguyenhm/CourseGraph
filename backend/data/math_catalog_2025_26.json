@@ -1,0 +1,941 @@
+{
+  "catalog_year": "2025-2026",
+  "source": "DePauw University Catalog 2025-2026, Mathematics course listings",
+  "omitted": [
+    "MATH EXPQ (experimental course, no number or content)"
+  ],
+  "courses": [
+    {
+      "id": "MATH-123",
+      "subject": "MATH",
+      "number": 123,
+      "title": "Computational Discrete Mathematics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": null
+    },
+    {
+      "id": "MATH-135",
+      "subject": "MATH",
+      "number": 135,
+      "title": "Calculus with Review I",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "antireq": [
+        "MATH-151",
+        "MATH-152",
+        "MATH-251"
+      ],
+      "notes": "Not open to students with credit in MATH 151 or any higher calculus course. Anti-requisite, not a prerequisite."
+    },
+    {
+      "id": "MATH-136",
+      "subject": "MATH",
+      "number": 136,
+      "title": "Calculus with Review II",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "course",
+        "course_id": "MATH-135"
+      },
+      "notes": "Completing 135+136 is equivalent to MATH 151 - see equivalences (relation 'satisfies')."
+    },
+    {
+      "id": "MATH-141",
+      "subject": "MATH",
+      "number": 141,
+      "title": "Stats for Professionals",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": null,
+      "notes": "Only one-half credit if ECON 350 completed or concurrent. Credit-reduction rule; out of scope for v1."
+    },
+    {
+      "id": "MATH-143",
+      "subject": "MATH",
+      "number": 143,
+      "title": "Mathematical Modeling",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "prereq": null
+    },
+    {
+      "id": "MATH-151",
+      "subject": "MATH",
+      "number": 151,
+      "title": "Calculus I",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": null
+    },
+    {
+      "id": "MATH-152",
+      "subject": "MATH",
+      "number": 152,
+      "title": "Calculus II",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-136"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-151"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-184",
+      "subject": "MATH",
+      "number": 184,
+      "title": "On-Campus Extended Studies Course",
+      "credits_min": 0.0,
+      "credits_max": 0.5,
+      "attributes": [
+        "ES"
+      ],
+      "prereq": null,
+      "repeatable": true
+    },
+    {
+      "id": "MATH-185",
+      "subject": "MATH",
+      "number": 185,
+      "title": "Extended Studies Independent Project",
+      "credits_min": 0.0,
+      "credits_max": 0.0,
+      "attributes": [
+        "ES"
+      ],
+      "prereq": null
+    },
+    {
+      "id": "MATH-197",
+      "subject": "MATH",
+      "number": 197,
+      "title": "First-Year Seminar",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "standing",
+        "max_level": "first_year"
+      },
+      "notes": "Catalog text does not state first-year-only (CSC 197 does). Encoded by analogy - confirm."
+    },
+    {
+      "id": "MATH-223",
+      "subject": "MATH",
+      "number": 223,
+      "title": "Foundations of Advanced Mathematics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-123"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-136"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-151"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-247",
+      "subject": "MATH",
+      "number": 247,
+      "title": "Mathematical Statistics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-136"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-151"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-251",
+      "subject": "MATH",
+      "number": 251,
+      "title": "Calculus III",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "course",
+        "course_id": "MATH-152"
+      }
+    },
+    {
+      "id": "MATH-261",
+      "subject": "MATH",
+      "number": 261,
+      "title": "Introduction to Data Science",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-141"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      },
+      "notes": "Catalog: 'MATH 141 (or equivalent) or permission of instructor'. 'Or equivalent' is unencodable - left to consent."
+    },
+    {
+      "id": "MATH-270",
+      "subject": "MATH",
+      "number": 270,
+      "title": "Linear Algebra",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "competence_variants": [
+        "Q",
+        "W"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-152"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-321",
+      "subject": "MATH",
+      "number": 321,
+      "title": "Topics in Geometry",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-223"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-270"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-323",
+      "subject": "MATH",
+      "number": 323,
+      "title": "Algorithmic Graph Theory",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-233"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-270"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-223"
+          }
+        ]
+      },
+      "notes": "Catalog cites CSC 233, which the CSC catalog has retired (now CSC 236). Left as written; resolved via equivalences."
+    },
+    {
+      "id": "MATH-331",
+      "subject": "MATH",
+      "number": 331,
+      "title": "Financial Mathematics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-100"
+          },
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-136"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-151"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-375"
+              }
+            ]
+          }
+        ]
+      },
+      "cross_listed": [
+        "BUSA-331"
+      ],
+      "notes": "AMBIGUOUS: 'ECON 100 and MATH 136 or MATH 151 or ECON 375'. Read as ECON 100 AND (136|151|375), matching MATH 336's unambiguous wording. Confirm."
+    },
+    {
+      "id": "MATH-332",
+      "subject": "MATH",
+      "number": 332,
+      "title": "Seminar in Financial Mathematics",
+      "credits_min": 0.5,
+      "credits_max": 0.5,
+      "prereq": {
+        "type": "coreq",
+        "course_id": "MATH-331"
+      },
+      "cross_listed": [
+        "BUSA-332"
+      ]
+    },
+    {
+      "id": "MATH-336",
+      "subject": "MATH",
+      "number": 336,
+      "title": "Quantitative Risk Analysis",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "competence_variants": [
+        "W"
+      ],
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-136"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-151"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-375"
+              }
+            ]
+          },
+          {
+            "type": "course",
+            "course_id": "ECON-100"
+          },
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-141"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-350"
+              }
+            ]
+          }
+        ]
+      },
+      "cross_listed": [
+        "BUSA-336"
+      ]
+    },
+    {
+      "id": "MATH-340",
+      "subject": "MATH",
+      "number": 340,
+      "title": "Topics in Statistics",
+      "credits_min": 0.25,
+      "credits_max": 1.0,
+      "competence_variants": [
+        "Q",
+        "S"
+      ],
+      "prereq": null,
+      "repeatable": true,
+      "notes": "Catalog's 340S description is a copy of the Q description (mentions quantitative reasoning, not oral communication)."
+    },
+    {
+      "id": "MATH-341",
+      "subject": "MATH",
+      "number": 341,
+      "title": "Statistical Model Analysis",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-141"
+          },
+          {
+            "type": "course",
+            "course_id": "ECON-350"
+          },
+          {
+            "type": "course",
+            "course_id": "PSY-214"
+          },
+          {
+            "type": "course",
+            "course_id": "BIO-275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-348",
+      "subject": "MATH",
+      "number": 348,
+      "title": "Introduction to Statistical Computing",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-141"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-350"
+              },
+              {
+                "type": "course",
+                "course_id": "BIO-375"
+              },
+              {
+                "type": "course",
+                "course_id": "PSY-214"
+              }
+            ]
+          },
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-151"
+              },
+              {
+                "type": "and",
+                "children": [
+                  {
+                    "type": "course",
+                    "course_id": "MATH-135"
+                  },
+                  {
+                    "type": "course",
+                    "course_id": "MATH-136"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "notes": "Cites BIO 375; MATH 341 cites BIO 275 for the same slot. One is likely a typo - both kept as written."
+    },
+    {
+      "id": "MATH-361",
+      "subject": "MATH",
+      "number": 361,
+      "title": "Analysis",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-152"
+          },
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-223"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-270"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-363",
+      "subject": "MATH",
+      "number": 363,
+      "title": "Differential Equations",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-152"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-270"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-367",
+      "subject": "MATH",
+      "number": 367,
+      "title": "Introduction to Numerical Analysis",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "competence_variants": [
+        "S"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "and",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-270"
+              },
+              {
+                "type": "course",
+                "course_id": "CSC-121"
+              }
+            ]
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      },
+      "notes": "AMBIGUOUS: 'MATH 270 and CSC 121 or permission of instructor'. Read as (270 AND 121) OR consent. Confirm."
+    },
+    {
+      "id": "MATH-371",
+      "subject": "MATH",
+      "number": 371,
+      "title": "Algebraic Structures",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "MATH-270"
+      }
+    },
+    {
+      "id": "MATH-382",
+      "subject": "MATH",
+      "number": 382,
+      "title": "Number Theory",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "MATH-270"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-390",
+      "subject": "MATH",
+      "number": 390,
+      "title": "Advanced Topics in Mathematics",
+      "credits_min": 0.5,
+      "credits_max": 1.0,
+      "prereq": null,
+      "repeatable": true,
+      "topic_areas": {
+        "A": "Actuarial Mathematics",
+        "B": "Algebra",
+        "C": "Analysis",
+        "D": "Foundations of Mathematics",
+        "E": "Geometry",
+        "F": "Applied Mathematics",
+        "G": "Special Topics"
+      },
+      "notes": "Suffix letters (390C, 390G) are TOPIC AREAS, not competences."
+    },
+    {
+      "id": "MATH-422",
+      "subject": "MATH",
+      "number": 422,
+      "title": "Operations Research",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "MATH-270"
+      }
+    },
+    {
+      "id": "MATH-441",
+      "subject": "MATH",
+      "number": 441,
+      "title": "Probability",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "MATH-152"
+      }
+    },
+    {
+      "id": "MATH-442",
+      "subject": "MATH",
+      "number": 442,
+      "title": "Probability Problems Seminar",
+      "credits_min": 0.5,
+      "credits_max": 0.5,
+      "prereq": {
+        "type": "coreq",
+        "course_id": "MATH-441"
+      }
+    },
+    {
+      "id": "MATH-490",
+      "subject": "MATH",
+      "number": 490,
+      "title": "Mathematics Topics",
+      "credits_min": 0.5,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "consent",
+        "by": "instructor"
+      },
+      "repeatable": true,
+      "topic_areas": {
+        "A": "Actuarial Mathematics",
+        "B": "Algebra",
+        "C": "Analysis",
+        "D": "Foundations of Mathematics",
+        "E": "Geometry",
+        "F": "Probability and Statistics",
+        "G": "Applied Mathematics",
+        "H": "Special Topics"
+      },
+      "notes": "Suffix letters (490A/B/F/G/H) are TOPIC AREAS, not competences."
+    },
+    {
+      "id": "MATH-494",
+      "subject": "MATH",
+      "number": 494,
+      "title": "Actuarial and Risk Management Case Studies",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "attributes": [
+        "S"
+      ],
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-331"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-336"
+              }
+            ]
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-441"
+          },
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "MATH-341"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-348"
+              },
+              {
+                "type": "course",
+                "course_id": "BUSA-305"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-385"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-450"
+              },
+              {
+                "type": "course",
+                "course_id": "FIN-451"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "MATH-495",
+      "subject": "MATH",
+      "number": 495,
+      "title": "Seminar: Mathematics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "attributes": [
+        "S"
+      ],
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "and",
+            "children": [
+              {
+                "type": "standing",
+                "min_level": "senior"
+              },
+              {
+                "type": "program",
+                "program_id": "MAJOR-MATH"
+              }
+            ]
+          },
+          {
+            "type": "consent",
+            "by": "department"
+          }
+        ]
+      },
+      "notes": "'Open only to senior Mathematics majors or by permission of the Department.' Needs a 'program' node: declared-major check."
+    }
+  ],
+  "stub_courses": [
+    {
+      "id": "ECON-100",
+      "subject": "ECON",
+      "number": 100,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "ECON-350",
+      "subject": "ECON",
+      "number": 350,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "ECON-375",
+      "subject": "ECON",
+      "number": 375,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "ECON-385",
+      "subject": "ECON",
+      "number": 385,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "ECON-450",
+      "subject": "ECON",
+      "number": 450,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "PSY-214",
+      "subject": "PSY",
+      "number": 214,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "BIO-275",
+      "subject": "BIO",
+      "number": 275,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "BIO-375",
+      "subject": "BIO",
+      "number": 375,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "BUSA-305",
+      "subject": "BUSA",
+      "number": 305,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    },
+    {
+      "id": "FIN-451",
+      "subject": "FIN",
+      "number": 451,
+      "title": "(stub - outside CSC/MATH scope)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null,
+      "stub": true
+    }
+  ],
+  "equivalences": [
+    {
+      "from": "MATH-136",
+      "to": "MATH-151",
+      "relation": "satisfies",
+      "note": "Catalog: 'Completion of this course is equivalent to completing MATH 151.' Additive - 136 stays on record AND counts as 151."
+    }
+  ]
+}

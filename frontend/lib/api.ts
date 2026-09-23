@@ -1,0 +1,66 @@
+export const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+export type PrereqNode =
+  | { type: "none" }
+  | { type: "course"; course_id: string; min_grade?: string | null }
+  | { type: "coreq"; course_id: string }
+  | { type: "consent"; by: string }
+  | { type: "standing"; min_level?: string | null; max_level?: string | null }
+  | { type: "course_level"; subject: string; min_number: number; count: number }
+  | { type: "program"; program_id: string }
+  | { type: "placement"; test: string; min_score?: number | null }
+  | { type: "and"; children: PrereqNode[] }
+  | { type: "or"; children: PrereqNode[] };
+
+export type CourseDetail = {
+  course_id: string;
+  label: string;
+  title: string;
+  credits_min: number | null;
+  credits_max: number | null;
+  distribution: string | null;
+  competence_variants: string[];
+  attributes: string[];
+  stub: boolean;
+  retired: boolean;
+  catalog_year: string;
+  prereq_expr: PrereqNode;
+  prereq_raw: string;
+  extra: Record<string, unknown>;
+};
+
+export type GraphPayload = {
+  nodes: {
+    id: string;
+    course_id: string;
+    label: string;
+    title: string;
+    credits_min: number | null;
+    credits_max: number | null;
+    badges: string[];
+    layer: number;
+  }[];
+  edges: {
+    id: string;
+    source: string;
+    target: string;
+    kind: "required" | "alternative" | "coreq";
+    group: string | null;
+    via: string | null;
+  }[];
+};
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${API}${path}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${path}`);
+  return res.json();
+}
+
+export const fetchGraph = (subject?: string) =>
+  get<GraphPayload>(`/api/graph${subject ? `?subject=${subject}` : ""}`);
+
+export const fetchCourse = (courseId: string) =>
+  get<CourseDetail>(`/api/courses/${encodeURIComponent(courseId)}`);
+
+export const credits = (lo: number | null, hi: number | null) =>
+  lo === null && hi === null ? "" : lo === hi ? `${lo}` : `${lo}–${hi}`;

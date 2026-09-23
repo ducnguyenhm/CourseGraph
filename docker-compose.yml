@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: coursegraph
+      POSTGRES_PASSWORD: coursegraph
+      POSTGRES_DB: coursegraph
+    # Deliberately no host port. Postgres is reached at db:5432 inside the
+    # network, and `docker compose exec db psql -U coursegraph` from the host.
+    # Publishing a port only invites a collision on whatever machine demos this.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coursegraph -d coursegraph"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://coursegraph:coursegraph@db:5432/coursegraph
+      DEFAULT_CATALOG_YEAR: "2025-2026"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        # Without this the API races Postgres and exits on first boot.
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      # Read by the browser, not the container, so it must be localhost.
+      # http://backend:8000 resolves only inside the compose network.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
