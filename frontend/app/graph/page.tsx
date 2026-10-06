@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { PrereqTree } from "@/components/PrereqTree";
 import {
@@ -406,25 +407,7 @@ export default function GraphPage() {
                 </ul>
               ) : null}
             </div>
-            <fieldset className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-1.5 text-sm">
-              <legend className="sr-only">Departments</legend>
-              {DEPARTMENTS.map((d) => (
-                <label key={d} className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
-                    checked={subjects.includes(d)}
-                    onChange={(e) =>
-                      setSubjects((cur) => {
-                        const next = e.target.checked ? [...cur, d] : cur.filter((x) => x !== d);
-                        // Keep at least one department: an empty graph helps no one.
-                        return next.length ? DEPARTMENTS.filter((x) => next.includes(x)) : cur;
-                      })
-                    }
-                  />
-                  {d}
-                </label>
-              ))}
-            </fieldset>
+            <DepartmentPicker value={subjects} onChange={setSubjects} />
             <select
               value={program}
               onChange={(e) => {
@@ -943,6 +926,93 @@ function ChainList({
       ) : (
         <p className="mt-1 text-xs text-muted-foreground">{empty}</p>
       )}
+    </div>
+  );
+}
+
+// Looks like the program menu, but several departments can be ticked at once.
+// At least one stays ticked: an empty graph helps no one.
+function DepartmentPicker({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => {
+      if (!box.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  const all = value.length === DEPARTMENTS.length;
+  const label = all ? "All departments" : value.length === 1 ? `${value[0]} only` : value.join(" + ");
+
+  const toggle = (d: string) => {
+    const next = value.includes(d) ? value.filter((x) => x !== d) : [...value, d];
+    if (next.length) onChange(DEPARTMENTS.filter((x) => next.includes(x)));
+  };
+
+  return (
+    <div ref={box} className="relative">
+      <button
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label={`Departments: ${label}`}
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-sm"
+      >
+        {label}
+        <ChevronDown className="size-4 text-muted-foreground" />
+      </button>
+      {open ? (
+        <div
+          role="group"
+          aria-label="Departments"
+          className="panel absolute left-0 top-full z-20 mt-1 w-56 py-1 text-sm shadow-lg"
+        >
+          <button
+            type="button"
+            onClick={() => onChange(DEPARTMENTS)}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-secondary"
+          >
+            <Check className={`size-4 ${all ? "" : "invisible"}`} />
+            All departments
+          </button>
+          <div className="my-1 border-t border-border" />
+          {DEPARTMENTS.map((d) => {
+            const on = value.includes(d);
+            const last = on && value.length === 1;
+            return (
+              <label
+                key={d}
+                title={last ? "At least one department stays selected" : undefined}
+                className={`flex items-center gap-2 px-3 py-1.5 ${last ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-secondary"}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={on}
+                  disabled={last}
+                  onChange={() => toggle(d)}
+                />
+                {d}
+              </label>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }
