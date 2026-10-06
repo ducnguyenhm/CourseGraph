@@ -3,7 +3,8 @@
 Interactive prerequisite graph and multi-major degree planner for the DePauw
 catalog. Senior project, CSC 498S.
 
-Design for the current checkpoint: [`docs/checkpoint-1-design.md`](docs/checkpoint-1-design.md).
+Design for the current checkpoint: [`docs/checkpoint-2-design.md`](docs/checkpoint-2-design.md)
+(previous: [`docs/checkpoint-1-design.md`](docs/checkpoint-1-design.md)).
 
 ## Running
 
@@ -77,6 +78,22 @@ rather than silently producing wrong answers later:
 ```sh
 docker compose exec backend python -m scripts.seed
 ```
+
+`--check` runs the same validation without ever opening a database session,
+which is how the deliberately corrupted fixtures in `backend/data/corrupt/` are
+demonstrated against a live stack:
+
+```sh
+docker compose exec backend python -m scripts.seed --check \
+  data/corrupt/csc_cycle_via_renumber.json data/math_catalog_2025_26.json
+# refusing to load:
+# 1 problem(s) found:
+#   prerequisite cycle: CSC-235 -> CSC-236 (cited as CSC-233) -> CSC-235
+```
+
+Each corrupted file carries a `corruption` note saying what was changed.
+`csc_or_loop.json` is the control case: its loop runs only through an "or"
+branch, so it is accepted.
 
 ### Renumbering
 

@@ -6,6 +6,11 @@ references or a cycle rather than half-loading it.
 
     python -m scripts.seed data/csc_catalog_2025_26.json data/math_catalog_2025_26.json
     python -m scripts.seed --if-empty
+    python -m scripts.seed --check data/corrupt/csc_cycle_direct.json data/math_catalog_2025_26.json
+
+`--check` validates and reports without ever opening a database session, so a
+deliberately corrupted fixture can be demonstrated against a live stack
+without any risk to it.
 """
 
 from __future__ import annotations
@@ -18,10 +23,10 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db import SessionLocal
 from app.models.catalog import CatalogYear, Course, CourseEquivalence, CourseVersion
 from app.schemas.prereq import normalize_id, parse
-from app.services.validation import CatalogError, validate
+from app.services.fixtures import check
+from app.services.validation import CatalogError
 
 DEFAULT_FIXTURES = ["data/csc_catalog_2025_26.json", "data/math_catalog_2025_26.json"]
 
@@ -34,37 +39,6 @@ MODELLED = {
     "id", "subject", "number", "title", "credits_min", "credits_max",
     "distribution", "competence_variants", "attributes", "prereq", "stub",
 }
-
-
-def read_fixtures(
-    paths: list[Path],
-) -> tuple[str, list[dict], dict[str, str], set[str]]:
-    entries: list[dict] = []
-    equivalences: dict[str, str] = {}
-    retired: set[str] = set()
-    years: dict[str, Path] = {}
-
-    for path in paths:
-        doc = json.loads(path.read_text())
-        # The fixture declares its own catalog year. Taking it from settings
-        # instead would silently file a 2025-26 catalog under whatever year the
-        # server happened to default to — the exact error the versioned schema
-        # exists to prevent.
-        years[str(doc["catalog_year"])] = path
-        for course in doc.get("courses", []):
-            entries.append({**course, "stub": False})
-        for stub in doc.get("stub_courses", []):
-            entries.append({**stub, "stub": True})
-        for eq in doc.get("equivalences", []):
-            equivalences[normalize_id(eq["from"])] = normalize_id(eq["to"])
-        for r in doc.get("retired_ids", []):
-            retired.add(normalize_id(r["id"]))
-
-    if len(years) != 1:
-        listing = ", ".join(f"{p.name}={y}" for y, p in sorted(years.items()))
-        raise CatalogError(f"fixtures disagree on catalog_year: {listing}")
-
-    return next(iter(years)), entries, equivalences, retired
 
 
 def read_prereq_text(catalog_year: str) -> dict[str, str]:
@@ -152,11 +126,14 @@ def upsert(
     return len(entries)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("fixtures", nargs="*", default=None)
     ap.add_argument("--if-empty", action="store_true")
-    args = ap.parse_args()
+    ap.add_argument(
+        "--check", action="store_true", help="validate only; never touch the database"
+    )
+    args = ap.parse_args(argv)
 
     paths = [Path(p) for p in (args.fixtures or DEFAULT_FIXTURES)]
     missing = [p for p in paths if not p.exists()]
@@ -165,44 +142,43 @@ def main() -> int:
         return 0 if args.if_empty else 1
 
     try:
-        catalog_year, entries, eq_map, retired = read_fixtures(paths)
-    except CatalogError as exc:
-        print(exc, file=sys.stderr)
-        return 1
-
-    raw_eqs = [
-        eq
-        for p in paths
-        for eq in json.loads(p.read_text()).get("equivalences", [])
-    ]
-
-    try:
-        trees = {normalize_id(e["id"]): parse(e.get("prereq")) for e in entries}
-    except Exception as exc:
-        print(f"fixtures are malformed:\n{exc}", file=sys.stderr)
-        return 1
-
-    try:
-        validate(trees, eq_map)
+        fixtures = check(paths)
     except CatalogError as exc:
         print(f"refusing to load:\n{exc}", file=sys.stderr)
         return 1
+
+    if args.check:
+        print(
+            f"ok: {len(fixtures.entries)} courses, {len(fixtures.equivalences)} "
+            f"equivalences, {len(fixtures.retired)} retired ids for "
+            f"{fixtures.catalog_year} — no dangling references, no cycles"
+        )
+        return 0
+
+    # Imported here so the --check path above never opens a session.
+    from app.db import SessionLocal
 
     with SessionLocal() as session:
         if args.if_empty:
             existing = session.scalar(
                 select(func.count(CourseVersion.id))
                 .join(CatalogYear)
-                .where(CatalogYear.label == catalog_year)
+                .where(CatalogYear.label == fixtures.catalog_year)
             )
             if existing:
-                print(f"{catalog_year} already has {existing} courses — skipping")
+                print(f"{fixtures.catalog_year} already has {existing} courses — skipping")
                 return 0
-        n = upsert(session, catalog_year, entries, raw_eqs, retired)
+        n = upsert(
+            session,
+            fixtures.catalog_year,
+            fixtures.entries,
+            fixtures.equivalences,
+            fixtures.retired,
+        )
 
     print(
-        f"seeded {n} courses, {len(raw_eqs)} equivalences, "
-        f"{len(retired)} retired ids into {catalog_year}"
+        f"seeded {n} courses, {len(fixtures.equivalences)} equivalences, "
+        f"{len(fixtures.retired)} retired ids into {fixtures.catalog_year}"
     )
     return 0
 

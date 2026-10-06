@@ -28,3 +28,20 @@ class HealthResponse(BaseModel):
     database: str
     catalog_year: str
     course_count: int
+
+
+class ChainCourse(BaseModel):
+    course_id: str
+    label: str
+    title: str
+    # 'required': on every way to (or from) the selected course.
+    # 'alternative': reached only through one branch of an 'or'.
+    necessity: str
+    stub: bool
+
+
+class ChainResponse(BaseModel):
+    course_id: str
+    catalog_year: str
+    upstream: list[ChainCourse]
+    downstream: list[ChainCourse]

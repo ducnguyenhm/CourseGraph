@@ -47,7 +47,25 @@ export type GraphPayload = {
     kind: "required" | "alternative" | "coreq";
     group: string | null;
     via: string | null;
+    // The source is outside the current filter; the edge is kept so the view
+    // can say a prerequisite exists rather than silently losing it.
+    external: boolean;
   }[];
+};
+
+export type ChainCourse = {
+  course_id: string;
+  label: string;
+  title: string;
+  necessity: "required" | "alternative";
+  stub: boolean;
+};
+
+export type Chain = {
+  course_id: string;
+  catalog_year: string;
+  upstream: ChainCourse[];
+  downstream: ChainCourse[];
 };
 
 async function get<T>(path: string): Promise<T> {
@@ -58,6 +76,9 @@ async function get<T>(path: string): Promise<T> {
 
 export const fetchGraph = (subject?: string) =>
   get<GraphPayload>(`/api/graph${subject ? `?subject=${subject}` : ""}`);
+
+export const fetchChain = (courseId: string) =>
+  get<Chain>(`/api/graph/chain/${encodeURIComponent(courseId)}`);
 
 export const fetchCourse = (courseId: string) =>
   get<CourseDetail>(`/api/courses/${encodeURIComponent(courseId)}`);

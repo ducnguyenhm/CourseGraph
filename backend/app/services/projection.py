@@ -134,8 +134,16 @@ def compute_layers(node_ids: set[str], edges: list[Edge]) -> dict[str, int]:
 def build_graph(
     courses: dict[str, tuple[PrereqNode, str, float | None, float | None]],
     equivalences: dict[str, str] | None = None,
+    visible: set[str] | None = None,
 ) -> dict:
-    """courses: id -> (tree, title, credits_min, credits_max)."""
+    """courses: id -> (tree, title, credits_min, credits_max).
+
+    `courses` should be the whole catalog year, so depth reflects every
+    prerequisite; `visible` (default: all) is what is returned. An edge from a
+    hidden course into a visible one is kept and marked `external`, so a
+    filtered view can point at the missing prerequisite instead of silently
+    losing it.
+    """
     nodes = {
         cid: Node(course_id=cid, title=t, credits_min=lo, credits_max=hi)
         for cid, (_, t, lo, hi) in courses.items()
@@ -150,6 +158,7 @@ def build_graph(
         edges.extend(e for e in course_edges if e.source in nodes)
 
     layers = compute_layers(set(nodes), edges)
+    shown = set(nodes) if visible is None else visible & set(nodes)
 
     return {
         "nodes": [
@@ -164,6 +173,7 @@ def build_graph(
                 "layer": layers[n.course_id],
             }
             for n in sorted(nodes.values(), key=lambda n: n.course_id)
+            if n.course_id in shown
         ],
         "edges": [
             {
@@ -173,7 +183,9 @@ def build_graph(
                 "kind": e.kind,
                 "group": e.group,
                 "via": e.via,
+                "external": e.source not in shown,
             }
             for i, e in enumerate(edges)
+            if e.target in shown
         ],
     }

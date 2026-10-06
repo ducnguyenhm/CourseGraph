@@ -6,8 +6,11 @@ import { AppShell } from "@/components/AppShell";
 import { PrereqTree } from "@/components/PrereqTree";
 import {
   credits,
+  fetchChain,
   fetchCourse,
   fetchGraph,
+  type Chain,
+  type ChainCourse,
   type CourseDetail,
   type GraphPayload,
 } from "@/lib/api";
@@ -33,6 +36,7 @@ export default function GraphPage() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [course, setCourse] = useState<CourseDetail | null>(null);
+  const [chain, setChain] = useState<Chain | null>(null);
   const [view, setView] = useState({ x: 0, y: 0, k: 1 });
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -46,8 +50,10 @@ export default function GraphPage() {
   }, [subject]);
 
   useEffect(() => {
+    setChain(null);
     if (!selected) return setCourse(null);
     fetchCourse(selected).then(setCourse).catch(() => setCourse(null));
+    fetchChain(selected).then(setChain).catch(() => setChain(null));
   }, [selected]);
 
   // Layer comes from the backend's longest-path computation, so dependency
@@ -87,38 +93,42 @@ export default function GraphPage() {
     };
   }, [payload]);
 
-  // Every course that must be taken before the selected one — the transitive
-  // closure over incoming edges, not just its direct prerequisites. This is
-  // the question the graph exists to answer: what does this course actually
-  // cost me?
+  // The chain comes from the server, computed over the whole catalog year, so
+  // it is right under any filter and splits "must come first" from "one of
+  // these": CSC 340 needs 121 and 125, plus either 231 or 235.
   const focus = useMemo(() => {
-    if (!selected || !payload) return null;
+    if (!selected || !chain || chain.course_id !== selected) return null;
 
-    const incoming = new Map<string, string[]>();
-    for (const e of payload.edges) {
-      incoming.set(e.target, [...(incoming.get(e.target) ?? []), e.source]);
+    const required = new Set<string>();
+    const alternative = new Set<string>();
+    for (const c of chain.upstream) {
+      (c.necessity === "required" ? required : alternative).add(c.course_id);
+    }
+    const downstream = new Set(chain.downstream.map((c) => c.course_id));
+
+    const before = new Set([selected, ...required, ...alternative]);
+    const after = new Set([selected, ...downstream]);
+    const edges = new Map<string, "up" | "down">();
+    for (const e of payload?.edges ?? []) {
+      // An edge belongs to the chain only when both ends do; one leaving the
+      // chain sideways is not part of any path through the selected course.
+      if (before.has(e.source) && before.has(e.target)) edges.set(e.id, "up");
+      else if (after.has(e.source) && after.has(e.target)) edges.set(e.id, "down");
     }
 
-    const chain = new Set<string>([selected]);
-    const queue = [selected];
-    while (queue.length) {
-      for (const prereq of incoming.get(queue.pop()!) ?? []) {
-        if (!chain.has(prereq)) {
-          chain.add(prereq);
-          queue.push(prereq);
-        }
-      }
-    }
+    const role = (id: string) =>
+      id === selected
+        ? "selected"
+        : required.has(id)
+          ? "required"
+          : alternative.has(id)
+            ? "alternative"
+            : downstream.has(id)
+              ? "downstream"
+              : null;
 
-    // An edge belongs to the chain only when both ends do; an edge leaving the
-    // chain sideways is not part of any path to the selected course.
-    const edges = new Set(
-      payload.edges
-        .filter((e) => chain.has(e.source) && chain.has(e.target))
-        .map((e) => e.id),
-    );
-    return { nodes: chain, edges, upstream: chain.size - 1 };
-  }, [selected, payload]);
+    return { required, alternative, downstream, edges, role };
+  }, [selected, chain, payload]);
 
   // 64 courses do not fit at 1:1, so frame the whole graph on load rather
   // than dropping the viewer at the top-left corner of it.
@@ -166,6 +176,11 @@ export default function GraphPage() {
       .slice(0, 8);
   }, [query, payload]);
 
+  const visible = useMemo(
+    () => new Set(payload?.nodes.map((n) => n.id) ?? []),
+    [payload],
+  );
+
   const choose = (id: string) => {
     setSelected(id);
     centreOn(id);
@@ -189,8 +204,10 @@ export default function GraphPage() {
         payload ? (
           <div className="text-xs text-muted-foreground">
             {focus
-              ? `${focus.upstream} prerequisite ${focus.upstream === 1 ? "course" : "courses"} upstream of ${selected?.replace("-", " ")}`
-              : `${payload.nodes.length} courses · ${payload.edges.length} edges`}
+              ? `${selected?.replace("-", " ")}: ${focus.required.size} required${
+                  focus.alternative.size ? ` + ${focus.alternative.size} alternatives` : ""
+                } before · opens ${focus.downstream.size} after`
+              : `${payload.nodes.length} courses · ${payload.edges.filter((e) => !e.external).length} edges`}
           </div>
         ) : null
       }
@@ -305,6 +322,19 @@ export default function GraphPage() {
                 </span>
                 Consent / standing condition
               </div>
+              <div className="mt-1 border-t border-border pt-2 font-medium uppercase tracking-wider text-muted-foreground">
+                When a course is selected
+              </div>
+              {[
+                { label: "Must come first", style: { borderColor: "var(--primary)", background: "var(--accent)" } },
+                { label: "One of a choice", style: { borderColor: "var(--primary)", borderStyle: "dashed" } },
+                { label: "Opens up", style: { borderColor: "var(--gold)", background: "var(--warning-soft)" } },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center gap-2">
+                  <span className="inline-block h-3 w-5 rounded-sm border-2" style={l.style} />
+                  {l.label}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -355,15 +385,18 @@ export default function GraphPage() {
                   const x2 = b.x;
                   const y2 = b.y + NODE_H / 2;
                   const mid = (x1 + x2) / 2;
-                  const inChain = focus?.edges.has(edge.id) ?? false;
+                  const dir = focus?.edges.get(edge.id);
+                  const inChain = dir !== undefined;
                   const stroke =
-                    edge.kind === "alternative"
-                      ? "var(--primary)"
-                      : edge.kind === "coreq"
-                        ? "var(--warning)"
-                        : inChain
-                          ? "var(--primary)"
-                          : "var(--border)";
+                    dir === "down"
+                      ? "var(--gold)"
+                      : edge.kind === "alternative"
+                        ? "var(--primary)"
+                        : edge.kind === "coreq"
+                          ? "var(--warning)"
+                          : inChain
+                            ? "var(--primary)"
+                            : "var(--border)";
                   return (
                     <path
                       key={edge.id}
@@ -388,7 +421,8 @@ export default function GraphPage() {
                   const isSelected = n.id === selected;
                   // Unrelated courses dim rather than disappear, so the
                   // chain is read in the context of the whole catalog.
-                  const inChain = focus?.nodes.has(n.id) ?? false;
+                  const role = focus?.role(n.id) ?? null;
+                  const inChain = role !== null;
                   return (
                     <g
                       key={n.id}
@@ -404,12 +438,26 @@ export default function GraphPage() {
                         width={NODE_W}
                         height={NODE_H}
                         rx="8"
-                        fill={inChain && !isSelected ? "var(--accent)" : "var(--surface)"}
+                        fill={
+                          role === "required"
+                            ? "var(--accent)"
+                            : role === "downstream"
+                              ? "var(--warning-soft)"
+                              : "var(--surface)"
+                        }
                         stroke={
-                          isSelected || inChain ? "var(--primary)" : "var(--border)"
+                          role === "downstream"
+                            ? "var(--gold)"
+                            : isSelected || inChain
+                              ? "var(--primary)"
+                              : "var(--border)"
                         }
                         strokeWidth={isSelected ? 2.5 : inChain ? 2 : 1.5}
-                        strokeDasharray={n.badges.length ? "5 3" : undefined}
+                        strokeDasharray={
+                          role === "alternative" || (!inChain && n.badges.length)
+                            ? "5 3"
+                            : undefined
+                        }
                       />
                       <text
                         x="10"
@@ -476,6 +524,31 @@ export default function GraphPage() {
                 ) : null}
               </dl>
 
+              {chain && chain.course_id === course.course_id ? (
+                <div className="space-y-3">
+                  <ChainList
+                    title="Must come first"
+                    items={chain.upstream.filter((c) => c.necessity === "required")}
+                    empty="Nothing — no required prerequisites."
+                    visible={visible}
+                    onPick={choose}
+                  />
+                  <ChainList
+                    title="One of a choice"
+                    items={chain.upstream.filter((c) => c.necessity === "alternative")}
+                    visible={visible}
+                    onPick={choose}
+                  />
+                  <ChainList
+                    title="Opens up"
+                    items={chain.downstream}
+                    empty="Nothing in this catalog depends on it."
+                    visible={visible}
+                    onPick={choose}
+                  />
+                </div>
+              ) : null}
+
               <Link
                 href={`/courses/${course.course_id}`}
                 className="inline-block text-xs underline underline-offset-2"
@@ -492,5 +565,56 @@ export default function GraphPage() {
         </aside>
       </div>
     </AppShell>
+  );
+}
+
+// Courses outside the current filter are listed but not clickable: the chain
+// is computed over the whole catalog, so it can name courses not on screen.
+function ChainList({
+  title,
+  items,
+  empty,
+  visible,
+  onPick,
+}: {
+  title: string;
+  items: ChainCourse[];
+  empty?: string;
+  visible: Set<string>;
+  onPick: (id: string) => void;
+}) {
+  if (!items.length && !empty) return null;
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+        {title} {items.length ? `(${items.length})` : ""}
+      </div>
+      {items.length ? (
+        <ul className="mt-1 flex flex-wrap gap-1">
+          {items.map((c) => (
+            <li key={c.course_id}>
+              {visible.has(c.course_id) ? (
+                <button
+                  onClick={() => onPick(c.course_id)}
+                  title={c.title}
+                  className="rounded bg-secondary px-1.5 py-0.5 font-mono text-xs hover:bg-accent"
+                >
+                  {c.label}
+                </button>
+              ) : (
+                <span
+                  title={`${c.title} — not in the current filter`}
+                  className="rounded border border-dashed border-border px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
+                >
+                  {c.label}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1 text-xs text-muted-foreground">{empty}</p>
+      )}
+    </div>
   );
 }
