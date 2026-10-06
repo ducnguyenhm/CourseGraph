@@ -1,10 +1,10 @@
 {
   "catalog_year": "2025-2026",
-  "purpose": "Fictional student for the Checkpoint 2 graph. Built so every status appears: CSC 122/232 under retired numbers (resolving to 235/125), two courses in progress, three planned, and courses eligible only through consent (e.g. ECON 360).",
+  "purpose": "Demo student for the Checkpoint 2 graph, named for the author. The coursework is a made-up record, not the author's real transcript (checking against that is a Checkpoint 3 step). Built so every status appears: CSC 122/232 under retired numbers (resolving to 235/125), two courses in progress, three planned, and courses eligible only through consent (e.g. ECON 360).",
   "students": [
     {
       "id": "demo",
-      "name": "Jordan Avery (fictional demo student)",
+      "name": "Duc Nguyen",
       "class_standing": "junior",
       "expected_graduation": "2027SP",
       "programs": [
