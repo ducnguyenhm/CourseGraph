@@ -86,7 +86,8 @@ function StatusIcon({ status, x, y }: { status: Status; x: number; y: number }) 
 }
 
 export default function GraphPage() {
-  const [subjects, setSubjects] = useState<string[]>(DEPARTMENTS);
+  // Starts empty: nothing is drawn until departments are chosen.
+  const [subjects, setSubjects] = useState<string[]>([]);
   const [program, setProgram] = useState("");
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
   const [withStudent, setWithStudent] = useState(true);
@@ -121,7 +122,7 @@ export default function GraphPage() {
   useEffect(() => {
     if (!ready) return;
     const q = new URLSearchParams();
-    if (subjects.length !== DEPARTMENTS.length) q.set("dept", subjects.join(","));
+    if (subjects.length) q.set("dept", subjects.join(","));
     if (program) q.set("program", program);
     if (program && showOrder) q.set("order", "1");
     if (!withStudent) q.set("student", "0");
@@ -134,6 +135,7 @@ export default function GraphPage() {
     if (!ready) return;
     setPayload(null);
     setSelected(null);
+    if (!subjects.length) return;
     fetchGraph({
       // All departments ticked means no filter, which also keeps stubs out.
       subjects: subjects.length === DEPARTMENTS.length ? undefined : subjects,
@@ -214,7 +216,7 @@ export default function GraphPage() {
       pos,
       bands,
       width: Math.max(x - COL_GAP, NODE_W),
-      height: Math.min(MAX_ROWS, Math.max(...[...byLayer.values()].map((v) => v.length))) *
+      height: Math.min(MAX_ROWS, Math.max(0, ...[...byLayer.values()].map((v) => v.length))) *
         (NODE_H + ROW_GAP),
     };
   }, [payload]);
@@ -534,8 +536,21 @@ export default function GraphPage() {
             </div>
           </div>
 
-          {!payload ? (
+          {!subjects.length ? (
+            <div className="flex size-full items-center justify-center p-6">
+              <p className="max-w-sm text-center text-sm text-muted-foreground">
+                Choose one or more departments to draw the graph.
+              </p>
+            </div>
+          ) : !payload ? (
             <p className="p-6 text-sm text-muted-foreground">Loading graph…</p>
+          ) : !payload.nodes.length ? (
+            <div className="flex size-full items-center justify-center p-6">
+              <p className="max-w-sm text-center text-sm text-muted-foreground">
+                No courses match these filters. Try adding a department or choosing
+                another program.
+              </p>
+            </div>
           ) : (
             <svg
               ref={svgRef}
@@ -931,7 +946,7 @@ function ChainList({
 }
 
 // Looks like the program menu, but several departments can be ticked at once.
-// At least one stays ticked: an empty graph helps no one.
+// None ticked is allowed, and is how the page starts: an empty canvas.
 function DepartmentPicker({
   value,
   onChange,
@@ -957,11 +972,17 @@ function DepartmentPicker({
   }, [open]);
 
   const all = value.length === DEPARTMENTS.length;
-  const label = all ? "All departments" : value.length === 1 ? `${value[0]} only` : value.join(" + ");
+  const label = all
+    ? "All departments"
+    : !value.length
+      ? "Choose departments"
+      : value.length === 1
+        ? `${value[0]} only`
+        : value.join(" + ");
 
   const toggle = (d: string) => {
     const next = value.includes(d) ? value.filter((x) => x !== d) : [...value, d];
-    if (next.length) onChange(DEPARTMENTS.filter((x) => next.includes(x)));
+    onChange(DEPARTMENTS.filter((x) => next.includes(x)));
   };
 
   return (
@@ -991,22 +1012,23 @@ function DepartmentPicker({
             <Check className={`size-4 ${all ? "" : "invisible"}`} />
             All departments
           </button>
+          <button
+            type="button"
+            onClick={() => onChange([])}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-secondary"
+          >
+            <Check className={`size-4 ${value.length ? "invisible" : ""}`} />
+            None
+          </button>
           <div className="my-1 border-t border-border" />
           {DEPARTMENTS.map((d) => {
             const on = value.includes(d);
-            const last = on && value.length === 1;
             return (
               <label
                 key={d}
-                title={last ? "At least one department stays selected" : undefined}
-                className={`flex items-center gap-2 px-3 py-1.5 ${last ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-secondary"}`}
+                className="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-secondary"
               >
-                <input
-                  type="checkbox"
-                  checked={on}
-                  disabled={last}
-                  onChange={() => toggle(d)}
-                />
+                <input type="checkbox" checked={on} onChange={() => toggle(d)} />
                 {d}
               </label>
             );
