@@ -17,8 +17,8 @@ class CourseSummary(BaseModel):
 class CourseDetail(CourseSummary):
     catalog_year: str
     prereq_expr: dict
-    # Curator's notes on how the catalog sentence was read — shown beside the
-    # parsed tree, since several entries record a judgement call.
+    # The catalog's prerequisite sentence, verbatim (typos kept), shown beside
+    # the parsed tree. How an ambiguous sentence was read is in extra["notes"].
     prereq_raw: str
     extra: dict
 

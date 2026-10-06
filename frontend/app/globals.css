@@ -69,6 +69,10 @@
   --status-eligible-soft: oklch(0.97 0.04 90);
   --status-locked: oklch(0.6 0.015 255);
   --status-locked-soft: oklch(0.94 0.006 85);
+  /* Selected-course highlight. Hues no status uses, so a halo is never
+     mistaken for a status in either theme. */
+  --chain-up: oklch(0.5 0.2 300);
+  --chain-down: oklch(0.55 0.12 195);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -99,6 +103,8 @@
     --status-eligible-soft: oklch(0.3 0.04 85);
     --status-locked: oklch(0.6 0.015 255);
     --status-locked-soft: oklch(0.25 0.015 260);
+    --chain-up: oklch(0.74 0.15 300);
+    --chain-down: oklch(0.8 0.11 195);
   }
 }
 

@@ -91,6 +91,10 @@ export default function GraphPage() {
   const [withStudent, setWithStudent] = useState(true);
   const [showOrder, setShowOrder] = useState(false);
   const [order, setOrder] = useState<ProgramOrder | null>(null);
+  // The view lives in the address bar (?program=MAJOR-CSC&order=1&course=CSC-340),
+  // so a demo can open straight into it and a reload does not lose it.
+  const [ready, setReady] = useState(false);
+  const pendingCourse = useRef<string | null>(null);
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const [payload, setPayload] = useState<GraphPayload | null>(null);
@@ -103,6 +107,30 @@ export default function GraphPage() {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const depts = q.get("dept")?.split(",").filter((d) => DEPARTMENTS.includes(d));
+    if (depts?.length) setSubjects(DEPARTMENTS.filter((d) => depts.includes(d)));
+    if (q.get("program")) setProgram(q.get("program")!.toUpperCase());
+    if (q.get("order") === "1") setShowOrder(true);
+    if (q.get("student") === "0") setWithStudent(false);
+    pendingCourse.current = q.get("course")?.toUpperCase() ?? null;
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    const q = new URLSearchParams();
+    if (subjects.length !== DEPARTMENTS.length) q.set("dept", subjects.join(","));
+    if (program) q.set("program", program);
+    if (program && showOrder) q.set("order", "1");
+    if (!withStudent) q.set("student", "0");
+    if (selected) q.set("course", selected);
+    const qs = q.toString();
+    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  }, [ready, subjects, program, showOrder, withStudent, selected]);
+
+  useEffect(() => {
+    if (!ready) return;
     setPayload(null);
     setSelected(null);
     fetchGraph({
@@ -111,9 +139,14 @@ export default function GraphPage() {
       program: program || undefined,
       student: withStudent ? DEMO_STUDENT : undefined,
     })
-      .then(setPayload)
+      .then((p) => {
+        setPayload(p);
+        const wanted = pendingCourse.current;
+        pendingCourse.current = null;
+        if (wanted && p.nodes.some((n) => n.id === wanted)) setSelected(wanted);
+      })
       .catch((e) => setError(String(e)));
-  }, [subjects, program, withStudent]);
+  }, [ready, subjects, program, withStudent]);
 
   useEffect(() => {
     fetchPrograms().then(setPrograms).catch(() => setPrograms([]));
@@ -506,9 +539,9 @@ export default function GraphPage() {
                 When a course is selected
               </div>
               {[
-                { label: "Must come first", style: { borderColor: "var(--primary)" } },
-                { label: "One of a choice", style: { borderColor: "var(--primary)", borderStyle: "dashed" } },
-                { label: "Opens up", style: { borderColor: "var(--gold)" } },
+                { label: "Must come first", style: { borderColor: "var(--chain-up)" } },
+                { label: "One of a choice", style: { borderColor: "var(--chain-up)", borderStyle: "dashed" } },
+                { label: "Opens up", style: { borderColor: "var(--chain-down)" } },
               ].map((l) => (
                 <div key={l.label} className="flex items-center gap-2">
                   <span className="inline-block h-3 w-5 rounded-sm border-2" style={l.style} />
@@ -569,13 +602,13 @@ export default function GraphPage() {
                   const inChain = dir !== undefined;
                   const stroke =
                     dir === "down"
-                      ? "var(--gold)"
-                      : edge.kind === "alternative"
-                        ? "var(--primary)"
-                        : edge.kind === "coreq"
-                          ? "var(--warning)"
-                          : inChain
-                            ? "var(--primary)"
+                      ? "var(--chain-down)"
+                      : dir === "up"
+                        ? "var(--chain-up)"
+                        : edge.kind === "alternative"
+                          ? "var(--primary)"
+                          : edge.kind === "coreq"
+                            ? "var(--warning)"
                             : "var(--border)";
                   return (
                     <path
@@ -608,11 +641,12 @@ export default function GraphPage() {
                   const outside = externalIn.get(n.id);
                   // Status owns the node's fill and border; the selected
                   // chain is drawn as a halo around it, so both stay legible.
-                  const halo =
-                    isSelected || role === "required" || role === "alternative"
-                      ? "var(--primary)"
+                  const halo = isSelected
+                    ? "var(--foreground)"
+                    : role === "required" || role === "alternative"
+                      ? "var(--chain-up)"
                       : role === "downstream"
-                        ? "var(--gold)"
+                        ? "var(--chain-down)"
                         : null;
                   const dimmed = focus ? !inChain : order ? round === undefined : false;
                   return (
@@ -757,7 +791,7 @@ export default function GraphPage() {
                 {course.prereq_raw ? (
                   <div>
                     <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Curator&apos;s note
+                      Catalog text
                     </dt>
                     <dd className="mt-1 text-xs italic text-muted-foreground">
                       {course.prereq_raw}
