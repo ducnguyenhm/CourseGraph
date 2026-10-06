@@ -20,7 +20,7 @@ import json
 import sys
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.models.catalog import CatalogYear, Course, CourseEquivalence, CourseVersion
@@ -160,7 +160,10 @@ def upsert_programs(session: Session, catalog_year: str, programs: list[dict]) -
             )
         )
         if version is not None:
-            session.delete(version)
+            # One SQL delete; ON DELETE CASCADE removes its requirement rows.
+            # An ORM delete would also try to delete each child row itself,
+            # after the database cascade had already removed them.
+            session.execute(delete(ProgramVersion).where(ProgramVersion.id == version.id))
             session.flush()
         version = ProgramVersion(
             program_id=program.id,
