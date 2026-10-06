@@ -1,0 +1,96 @@
+{
+  "catalog_year": "2025-2026",
+  "purpose": "Fictional student for the Checkpoint 2 graph. Built so every status appears: CSC 122/232 under retired numbers (resolving to 235/125), two courses in progress, three planned, and courses eligible only through consent (e.g. ECON 360).",
+  "students": [
+    {
+      "id": "demo",
+      "name": "Jordan Avery (fictional demo student)",
+      "class_standing": "junior",
+      "expected_graduation": "2027SP",
+      "programs": [
+        "MAJOR-CSC",
+        "MINOR-MATH"
+      ],
+      "enrollments": [
+        {
+          "course_id": "CSC-121",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "MATH-151",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "CSC-122",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "MATH-152",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "CSC-232",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-123",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "ECON-100",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "CSC-231",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-223",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "CSC-236",
+          "term": "2025FA",
+          "status": "in_progress"
+        },
+        {
+          "course_id": "MATH-270",
+          "term": "2025FA",
+          "status": "in_progress"
+        }
+      ],
+      "plan": [
+        {
+          "course_id": "CSC-322",
+          "term": "2026SP"
+        },
+        {
+          "course_id": "CSC-340",
+          "term": "2026SP"
+        },
+        {
+          "course_id": "CSC-498",
+          "term": "2027SP"
+        }
+      ]
+    }
+  ]
+}

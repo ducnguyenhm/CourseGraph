@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 
 export const CATALOG_YEAR = "2025–2026";
 
-// The proposal's five destinations. Only Graph exists at Checkpoint 1; the
+// The proposal's five destinations. Only Graph exists at Checkpoint 2; the
 // rest are shown inert so the intended structure is legible without
 // pretending to features that are not built.
 const NAV = [
@@ -79,8 +79,8 @@ export function AppShell({
         </div>
 
         <div className="border-t border-border px-5 py-4 text-xs text-muted-foreground">
-          <div className="font-medium text-foreground">Checkpoint 1</div>
-          <div>Catalog and graph only</div>
+          <div className="font-medium text-foreground">Checkpoint 2</div>
+          <div>Prerequisite graph</div>
         </div>
       </nav>
 

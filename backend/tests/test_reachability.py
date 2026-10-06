@@ -19,7 +19,9 @@ def split(reached):
 
 @pytest.fixture(scope="module")
 def catalog() -> Reachability:
-    fixtures = check([DATA / "csc_catalog_2025_26.json", DATA / "math_catalog_2025_26.json"])
+    fixtures = check(
+        [DATA / f"{s}_catalog_2025_26.json" for s in ("csc", "math", "econ")]
+    )
     return Reachability(parse_trees(fixtures), fixtures.renumbering)
 
 
@@ -109,3 +111,15 @@ def test_loop_through_an_alternative_terminates():
     required, alternative = split(Reachability(trees).upstream("CSC-235"))
     assert "CSC-125" in required
     assert required | alternative == {"CSC-121", "CSC-125"}
+
+
+def test_math_331_now_reaches_into_econ(catalog):
+    """ECON-100 used to be a stub; with ECON curated the chain continues."""
+    required, _ = split(catalog.upstream("MATH-331"))
+    assert "ECON-100" in required
+
+
+def test_econ_450_requires_calculus(catalog):
+    required, alternative = split(catalog.upstream("ECON-450"))
+    assert "MATH-151" in required
+    assert {"ECON-350", "MATH-141", "MATH-247"} <= alternative

@@ -830,56 +830,6 @@
   ],
   "stub_courses": [
     {
-      "id": "ECON-100",
-      "subject": "ECON",
-      "number": 100,
-      "title": "(stub - outside CSC/MATH scope)",
-      "credits_min": 1.0,
-      "credits_max": 1.0,
-      "prereq": null,
-      "stub": true
-    },
-    {
-      "id": "ECON-350",
-      "subject": "ECON",
-      "number": 350,
-      "title": "(stub - outside CSC/MATH scope)",
-      "credits_min": 1.0,
-      "credits_max": 1.0,
-      "prereq": null,
-      "stub": true
-    },
-    {
-      "id": "ECON-375",
-      "subject": "ECON",
-      "number": 375,
-      "title": "(stub - outside CSC/MATH scope)",
-      "credits_min": 1.0,
-      "credits_max": 1.0,
-      "prereq": null,
-      "stub": true
-    },
-    {
-      "id": "ECON-385",
-      "subject": "ECON",
-      "number": 385,
-      "title": "(stub - outside CSC/MATH scope)",
-      "credits_min": 1.0,
-      "credits_max": 1.0,
-      "prereq": null,
-      "stub": true
-    },
-    {
-      "id": "ECON-450",
-      "subject": "ECON",
-      "number": 450,
-      "title": "(stub - outside CSC/MATH scope)",
-      "credits_min": 1.0,
-      "credits_max": 1.0,
-      "prereq": null,
-      "stub": true
-    },
-    {
       "id": "PSY-214",
       "subject": "PSY",
       "number": 214,

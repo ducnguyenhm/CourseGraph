@@ -1,0 +1,636 @@
+{
+  "catalog_year": "2025-2026",
+  "source": "DePauw University Catalog 2025-2026, Economics & Management course listings (pp. 209-220)",
+  "provenance": "Transcribed by Claude from the catalog PDF on 2026-10-05 for Checkpoint 2. NOT yet verified line by line by the author; entries with judgement calls carry 'notes'. Follows the conventions block of csc_catalog_2025_26.json.",
+  "omitted": [
+    "FIN-, BUSA- and other Economics & Management department subjects (out of scope)"
+  ],
+  "courses": [
+    {
+      "id": "ECON-100",
+      "subject": "ECON",
+      "number": 100,
+      "title": "Introduction to Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": null
+    },
+    {
+      "id": "ECON-140",
+      "subject": "ECON",
+      "number": 140,
+      "title": "Contemporary Economic Problems",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-183",
+      "subject": "ECON",
+      "number": 183,
+      "title": "Off-Campus Extended Studies",
+      "credits_min": 0.0,
+      "credits_max": 0.5,
+      "prereq": null,
+      "attributes": [
+        "ES"
+      ],
+      "notes": "Credits 'Variable': curricular offerings earn .5, co-curricular offerings carry no credit."
+    },
+    {
+      "id": "ECON-184",
+      "subject": "ECON",
+      "number": 184,
+      "title": "On-Campus ES Course",
+      "credits_min": 0.0,
+      "credits_max": 0.5,
+      "prereq": null,
+      "attributes": [
+        "ES"
+      ],
+      "notes": "Credits 'variable' with no range stated; 0-0.5 assumed by analogy with ECON 183. Confirm."
+    },
+    {
+      "id": "ECON-197",
+      "subject": "ECON",
+      "number": 197,
+      "title": "First-Year Seminar",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "standing",
+        "max_level": "first_year"
+      },
+      "counts_toward_major": false,
+      "notes": "Open only to first-year students; cannot be counted toward an Economics major."
+    },
+    {
+      "id": "ECON-210",
+      "subject": "ECON",
+      "number": 210,
+      "title": "The History of Economic Thought",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-100"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-220",
+      "subject": "ECON",
+      "number": 220,
+      "title": "Introduction to Financial Accounting",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      },
+      "notes": "Listed out of order, ahead of ECON 100. FIN 220 has the same title but no cross-listing is stated."
+    },
+    {
+      "id": "ECON-235",
+      "subject": "ECON",
+      "number": 235,
+      "title": "Modern Economic History",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-245",
+      "subject": "ECON",
+      "number": 245,
+      "title": "Economics, Environment, and Corporate Social Responsibility",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-262",
+      "subject": "ECON",
+      "number": 262,
+      "title": "Urban Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-280",
+      "subject": "ECON",
+      "number": 280,
+      "title": "Managerial Accounting",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-220"
+      }
+    },
+    {
+      "id": "ECON-290",
+      "subject": "ECON",
+      "number": 290,
+      "title": "Topics in Economics and Management",
+      "credits_min": null,
+      "credits_max": null,
+      "prereq": null,
+      "repeatable": true,
+      "notes": "'Prerequisite: varies according to the topic offered.' Credits 'Variable', no range stated."
+    },
+    {
+      "id": "ECON-293",
+      "subject": "ECON",
+      "number": 293,
+      "title": "Foundations of Corporate Finance",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      },
+      "cross_listed": [
+        "FIN-293"
+      ],
+      "formerly": "Partially replaces ECON 393, Corporate Finance."
+    },
+    {
+      "id": "ECON-294",
+      "subject": "ECON",
+      "number": 294,
+      "title": "Intermediate Microeconomic Theory",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-295",
+      "subject": "ECON",
+      "number": 295,
+      "title": "Intermediate Macroeconomic Theory",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-315",
+      "subject": "ECON",
+      "number": 315,
+      "title": "Economics of the Labor Market",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-320",
+      "subject": "ECON",
+      "number": 320,
+      "title": "Development Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-330",
+      "subject": "ECON",
+      "number": 330,
+      "title": "Asian Economies",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-100"
+          },
+          {
+            "type": "course",
+            "course_id": "ECON-295"
+          }
+        ]
+      },
+      "attributes": [
+        "GL"
+      ],
+      "notes": "Catalog lists 'Global Learning' in the Distribution Area column; recorded as an attribute, not a distribution area."
+    },
+    {
+      "id": "ECON-342",
+      "subject": "ECON",
+      "number": 342,
+      "title": "Comparative Economic Systems",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      }
+    },
+    {
+      "id": "ECON-350",
+      "subject": "ECON",
+      "number": 350,
+      "title": "Introduction to Econometrics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-100"
+      },
+      "partial_credit_overlap": [
+        "BIO-275",
+        "BIO-375",
+        "MATH-141",
+        "MATH-247",
+        "PSY-214"
+      ],
+      "notes": "Students who have completed BIO 275 or 375, MATH 141, MATH 247 or PSY 214 receive only one-half credit."
+    },
+    {
+      "id": "ECON-360",
+      "subject": "ECON",
+      "number": 360,
+      "title": "Investment Analysis and Portfolio Management",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-350"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-375",
+      "subject": "ECON",
+      "number": 375,
+      "title": "Mathematical Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-294"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-151"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-385",
+      "subject": "ECON",
+      "number": 385,
+      "title": "Regression and Simulation for Economics and Management",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-350"
+          },
+          {
+            "type": "course",
+            "course_id": "BIO-275"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-141"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-247"
+          },
+          {
+            "type": "course",
+            "course_id": "PSY-214"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      },
+      "notes": "'Elementary statistics (such as ECON 350, BIO 275, MATH 141, MATH 247 or PSY 214) or consent of the instructor.' 'Such as' reads as examples; encoded as exactly the five listed."
+    },
+    {
+      "id": "ECON-390",
+      "subject": "ECON",
+      "number": 390,
+      "title": "Advanced Topics in Economics and Management",
+      "credits_min": 0.5,
+      "credits_max": 1.0,
+      "prereq": null,
+      "repeatable": true,
+      "notes": "'Prerequisite: varies according to the topic offered.'"
+    },
+    {
+      "id": "ECON-398",
+      "subject": "ECON",
+      "number": 398,
+      "title": "Business Policy",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-280"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-410",
+      "subject": "ECON",
+      "number": 410,
+      "title": "Public Finance",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-294"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-415",
+      "subject": "ECON",
+      "number": 415,
+      "title": "Labor Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-294"
+          },
+          {
+            "type": "course",
+            "course_id": "ECON-350"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-420",
+      "subject": "ECON",
+      "number": 420,
+      "title": "International Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "and",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "ECON-294"
+              },
+              {
+                "type": "course",
+                "course_id": "ECON-295"
+              }
+            ]
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      },
+      "notes": "AMBIGUOUS: 'ECON 294 and ECON 295 or permission of instructor'. Read as (294 AND 295) OR consent, consistent with how permission clauses are read elsewhere. Confirm."
+    },
+    {
+      "id": "ECON-430",
+      "subject": "ECON",
+      "number": 430,
+      "title": "Industrial Structure and Public Policy",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-294"
+      }
+    },
+    {
+      "id": "ECON-440",
+      "subject": "ECON",
+      "number": 440,
+      "title": "Game Theory and Strategic Decision-Making for Economics, Finance, and Business",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-294"
+      }
+    },
+    {
+      "id": "ECON-450",
+      "subject": "ECON",
+      "number": 450,
+      "title": "Econometrics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "or",
+            "children": [
+              {
+                "type": "course",
+                "course_id": "ECON-350"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-141"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-240"
+              },
+              {
+                "type": "course",
+                "course_id": "MATH-247"
+              },
+              {
+                "type": "consent",
+                "by": "instructor"
+              }
+            ]
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-151"
+          }
+        ]
+      },
+      "notes": "AMBIGUOUS: 'ECON 350, MATH 141, MATH 240, MATH 247 or permission of instructor. MATH 151 or the equivalent.' Read as (any one statistics course OR consent) AND MATH 151. 'Or the equivalent' is not encoded. MATH 240 is not listed anywhere else in the 2025-26 catalog; kept as a stub. Prerequisites appear only in the Prerequisites column. Confirm."
+    },
+    {
+      "id": "ECON-465",
+      "subject": "ECON",
+      "number": 465,
+      "title": "Health Economics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "ECON-294"
+          },
+          {
+            "type": "course",
+            "course_id": "ECON-350"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ECON-470",
+      "subject": "ECON",
+      "number": 470,
+      "title": "Money, Banking and the Financial System",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "ECON-295"
+      }
+    },
+    {
+      "id": "ECON-480",
+      "subject": "ECON",
+      "number": 480,
+      "title": "Seminar",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "program",
+            "program_id": "MAJOR-ECON"
+          },
+          {
+            "type": "consent",
+            "by": "instructor"
+          }
+        ]
+      },
+      "notes": "'A major in economics and management or permission of instructor.' ECON 480 or 485 is required of all senior Economics and Management majors."
+    },
+    {
+      "id": "ECON-485",
+      "subject": "ECON",
+      "number": 485,
+      "title": "Independent Senior Thesis",
+      "credits_min": 0.5,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "consent",
+        "by": "department"
+      },
+      "notes": "Thesis proposal must be approved by the department. One semester (1 credit) or two consecutive semesters (1/2 each). Not open for pass/fail."
+    },
+    {
+      "id": "ECON-490",
+      "subject": "ECON",
+      "number": 490,
+      "title": "Advanced Topics in Economics and Management",
+      "credits_min": 0.5,
+      "credits_max": 1.0,
+      "prereq": null,
+      "repeatable": true,
+      "notes": "'Prerequisite: varies according to the topic offered.'"
+    }
+  ],
+  "stub_courses": [
+    {
+      "id": "MATH-240",
+      "subject": "MATH",
+      "number": 240,
+      "title": "(stub - cited by ECON 450, not listed in the 2025-26 catalog)",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": null
+    }
+  ]
+}

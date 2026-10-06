@@ -39,6 +39,12 @@ export type GraphPayload = {
     credits_max: number | null;
     badges: string[];
     layer: number;
+    // Present when the graph is fetched for a program.
+    in_program?: "required" | "elective" | null;
+    // Present when the graph is fetched for a student.
+    status?: Status;
+    conditional?: boolean; // eligible only if someone confirms (consent)
+    unmet?: string[];
   }[];
   edges: {
     id: string;
@@ -51,6 +57,24 @@ export type GraphPayload = {
     // can say a prerequisite exists rather than silently losing it.
     external: boolean;
   }[];
+};
+
+export type Status = "completed" | "planned" | "eligible" | "locked";
+
+export type ProgramSummary = {
+  program_id: string;
+  kind: "major" | "minor";
+  name: string;
+  department: string;
+};
+
+export type ProgramOrder = {
+  program_id: string;
+  catalog_year: string;
+  rounds: { course_id: string; label: string; title: string; in_program: boolean }[][];
+  order: string[];
+  assumed: string[];
+  note: string;
 };
 
 export type ChainCourse = {
@@ -74,8 +98,23 @@ async function get<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export const fetchGraph = (subject?: string) =>
-  get<GraphPayload>(`/api/graph${subject ? `?subject=${subject}` : ""}`);
+export const fetchGraph = (opts: {
+  subjects?: string[];
+  program?: string;
+  student?: string;
+}) => {
+  const q = new URLSearchParams();
+  opts.subjects?.forEach((s) => q.append("subject", s));
+  if (opts.program) q.set("program", opts.program);
+  if (opts.student) q.set("student", opts.student);
+  const qs = q.toString();
+  return get<GraphPayload>(`/api/graph${qs ? `?${qs}` : ""}`);
+};
+
+export const fetchPrograms = () => get<ProgramSummary[]>("/api/programs");
+
+export const fetchProgramOrder = (programId: string) =>
+  get<ProgramOrder>(`/api/programs/${encodeURIComponent(programId)}/order`);
 
 export const fetchChain = (courseId: string) =>
   get<Chain>(`/api/graph/chain/${encodeURIComponent(courseId)}`);

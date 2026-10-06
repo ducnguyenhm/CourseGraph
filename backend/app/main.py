@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import courses, graph, health
+from app.api import courses, graph, health, programs, students
 from app.config import settings
 
 app = FastAPI(
@@ -20,3 +20,5 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(courses.router)
 app.include_router(graph.router)
+app.include_router(programs.router)
+app.include_router(students.router)

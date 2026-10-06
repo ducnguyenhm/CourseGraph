@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-20">
       <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        Catalog {CATALOG_YEAR} · Checkpoint 1
+        Catalog {CATALOG_YEAR} · Checkpoint 2
       </p>
       <h1 className="mt-3 font-display text-5xl leading-tight">CourseGraph</h1>
       <p className="mt-4 max-w-xl text-muted-foreground">

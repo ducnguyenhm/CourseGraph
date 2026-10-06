@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.schemas.prereq import PrereqNode, normalize_id, parse
+from app.services.programs import referenced_ids, to_rows, walk
 from app.services.validation import CatalogError, validate
 
 
@@ -96,3 +97,63 @@ def check(paths: list[Path]) -> FixtureSet:
         raise CatalogError(f"fixtures are malformed:\n{exc}") from exc
     validate(trees, fixtures.renumbering)
     return fixtures
+
+
+# --- programs and students ----------------------------------------------------
+
+
+def _known_ids(fixtures: FixtureSet) -> set[str]:
+    return {normalize_id(e["id"]) for e in fixtures.entries}
+
+
+def _same_year(doc: dict, path: Path, fixtures: FixtureSet) -> None:
+    if str(doc["catalog_year"]) != fixtures.catalog_year:
+        raise CatalogError(
+            f"{path.name} is for {doc['catalog_year']}, the catalog is {fixtures.catalog_year}"
+        )
+
+
+def read_programs(path: Path, fixtures: FixtureSet) -> list[dict]:
+    """Programs with their requirement trees as rows. Every course a
+    requirement names must exist in this catalog year."""
+    doc = json.loads(path.read_text())
+    _same_year(doc, path, fixtures)
+    known = _known_ids(fixtures)
+    programs, problems = [], []
+    for p in doc["programs"]:
+        try:
+            root = to_rows(p["requirements"])
+        except (KeyError, ValueError) as exc:
+            problems.append(f"{p.get('id')}: malformed requirements ({exc})")
+            continue
+        missing = referenced_ids((r.rule_type, r.spec) for r in walk(root)) - known
+        if missing:
+            problems.append(f"{p['id']} names {', '.join(sorted(missing))} — not in this catalog")
+        programs.append({**p, "root": root})
+    if problems:
+        raise CatalogError(f"{len(problems)} problem(s) in {path.name}:\n  " + "\n  ".join(problems))
+    return programs
+
+
+def read_students(
+    path: Path, fixtures: FixtureSet, program_ids: set[str]
+) -> list[dict]:
+    """Students may hold courses under retired numbers (CSC-122) — that is the
+    point of keeping retired ids — but never a course that does not exist."""
+    doc = json.loads(path.read_text())
+    _same_year(doc, path, fixtures)
+    known = _known_ids(fixtures) | fixtures.retired
+    problems = []
+    for s in doc["students"]:
+        for p in s.get("programs", []):
+            if p not in program_ids:
+                problems.append(f"student {s['id']} declares unknown program {p}")
+        for e in s.get("enrollments", []) + s.get("plan", []):
+            if normalize_id(e["course_id"]) not in known:
+                problems.append(f"student {s['id']} lists unknown course {e['course_id']}")
+        for e in s.get("enrollments", []):
+            if e.get("status", "completed") not in ("completed", "in_progress"):
+                problems.append(f"student {s['id']}: bad status {e['status']!r}")
+    if problems:
+        raise CatalogError(f"{len(problems)} problem(s) in {path.name}:\n  " + "\n  ".join(problems))
+    return doc["students"]

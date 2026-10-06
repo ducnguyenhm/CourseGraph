@@ -6,7 +6,7 @@ references or a cycle rather than half-loading it.
 
     python -m scripts.seed data/csc_catalog_2025_26.json data/math_catalog_2025_26.json
     python -m scripts.seed --if-empty
-    python -m scripts.seed --check data/corrupt/csc_cycle_direct.json data/math_catalog_2025_26.json
+    python -m scripts.seed --check data/corrupt/csc_cycle_direct.json data/math_catalog_2025_26.json data/econ_catalog_2025_26.json
 
 `--check` validates and reports without ever opening a database session, so a
 deliberately corrupted fixture can be demonstrated against a live stack
@@ -24,11 +24,20 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.catalog import CatalogYear, Course, CourseEquivalence, CourseVersion
+from app.models.program import Program, ProgramVersion, Requirement
+from app.models.student import Enrollment, PlanItem, Student, StudentProgram
 from app.schemas.prereq import normalize_id, parse
-from app.services.fixtures import check
+from app.services.fixtures import check, read_programs, read_students
+from app.services.programs import RequirementRow
 from app.services.validation import CatalogError
 
-DEFAULT_FIXTURES = ["data/csc_catalog_2025_26.json", "data/math_catalog_2025_26.json"]
+DEFAULT_FIXTURES = [
+    "data/csc_catalog_2025_26.json",
+    "data/math_catalog_2025_26.json",
+    "data/econ_catalog_2025_26.json",
+]
+DEFAULT_PROGRAMS = "data/programs_2025_26.json"
+DEFAULT_STUDENTS = "data/demo_student.json"
 
 # Verbatim prerequisite sentences from the catalog PDF, kept apart from the
 # curated fixtures so the fixtures stay as published. Keyed by course id.
@@ -64,14 +73,20 @@ def upsert(
         session.add(year)
         session.flush()
 
-    def course_row(cid: str, *, stub: bool = False, is_retired: bool = False) -> Course:
+    def course_row(
+        cid: str, *, stub: bool | None = None, is_retired: bool = False
+    ) -> Course:
         row = session.scalar(select(Course).where(Course.course_id == cid))
         if row is None:
             subject, number = cid.split("-")
-            row = Course(course_id=cid, subject=subject, number=int(number))
+            row = Course(course_id=cid, subject=subject, number=int(number), stub=False)
             session.add(row)
             session.flush()
-        row.stub = stub or row.stub
+        # A fixture entry says definitively whether the course is a stub, so a
+        # stub later curated for real (ECON-100) stops being one. Rows touched
+        # only as equivalence endpoints or retired ids keep what they had.
+        if stub is not None:
+            row.stub = stub
         row.retired = is_retired or row.retired
         return row
 
@@ -126,6 +141,97 @@ def upsert(
     return len(entries)
 
 
+def upsert_programs(session: Session, catalog_year: str, programs: list[dict]) -> int:
+    """Requirements are derived wholly from the fixture, so a program version's
+    rows are replaced on every seed rather than merged."""
+    year = session.scalar(select(CatalogYear).where(CatalogYear.label == catalog_year))
+    for p in programs:
+        program = session.scalar(select(Program).where(Program.program_id == p["id"]))
+        if program is None:
+            program = Program(program_id=p["id"])
+            session.add(program)
+        program.kind, program.name, program.department = p["kind"], p["name"], p["department"]
+        session.flush()
+
+        version = session.scalar(
+            select(ProgramVersion).where(
+                ProgramVersion.program_id == program.id,
+                ProgramVersion.catalog_year_id == year.id,
+            )
+        )
+        if version is not None:
+            session.delete(version)
+            session.flush()
+        version = ProgramVersion(
+            program_id=program.id,
+            catalog_year_id=year.id,
+            total_courses=p.get("total_courses", ""),
+            notes=p.get("notes", ""),
+        )
+        session.add(version)
+        session.flush()
+
+        def insert(row: RequirementRow, parent: int | None, position: int) -> None:
+            req = Requirement(
+                program_version_id=version.id,
+                parent_id=parent,
+                position=position,
+                label=row.label,
+                rule_type=row.rule_type,
+                spec=row.spec,
+                notes=row.notes,
+            )
+            session.add(req)
+            session.flush()
+            for i, child in enumerate(row.children):
+                insert(child, req.id, i)
+
+        insert(p["root"], None, 0)
+    session.commit()
+    return len(programs)
+
+
+def upsert_students(session: Session, catalog_year: str, students: list[dict]) -> int:
+    """The fixture is the whole record for a seeded student: transcript, plan
+    and declarations are replaced, not merged."""
+    year = session.scalar(select(CatalogYear).where(CatalogYear.label == catalog_year))
+    course_pk = {c.course_id: c.id for c in session.scalars(select(Course))}
+    program_pk = {p.program_id: p.id for p in session.scalars(select(Program))}
+
+    for s in students:
+        student = session.scalar(select(Student).where(Student.student_key == s["id"]))
+        if student is None:
+            student = Student(student_key=s["id"])
+            session.add(student)
+        student.name = s["name"]
+        student.catalog_year_id = year.id
+        student.class_standing = s["class_standing"]
+        student.expected_graduation = s["expected_graduation"]
+        student.programs.clear()
+        student.enrollments.clear()
+        student.plan_items.clear()
+        session.flush()
+
+        student.programs.extend(
+            StudentProgram(program_id=program_pk[p]) for p in s.get("programs", [])
+        )
+        student.enrollments.extend(
+            Enrollment(
+                course_id=course_pk[normalize_id(e["course_id"])],
+                term=e["term"],
+                status=e.get("status", "completed"),
+                grade=e.get("grade"),
+            )
+            for e in s.get("enrollments", [])
+        )
+        student.plan_items.extend(
+            PlanItem(course_id=course_pk[normalize_id(e["course_id"])], term=e["term"])
+            for e in s.get("plan", [])
+        )
+    session.commit()
+    return len(students)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("fixtures", nargs="*", default=None)
@@ -133,6 +239,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--check", action="store_true", help="validate only; never touch the database"
     )
+    ap.add_argument("--programs", default=DEFAULT_PROGRAMS)
+    ap.add_argument("--students", default=DEFAULT_STUDENTS)
     args = ap.parse_args(argv)
 
     paths = [Path(p) for p in (args.fixtures or DEFAULT_FIXTURES)]
@@ -143,6 +251,16 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         fixtures = check(paths)
+        programs = (
+            read_programs(Path(args.programs), fixtures)
+            if Path(args.programs).exists()
+            else []
+        )
+        students = (
+            read_students(Path(args.students), fixtures, {p["id"] for p in programs})
+            if Path(args.students).exists()
+            else []
+        )
     except CatalogError as exc:
         print(f"refusing to load:\n{exc}", file=sys.stderr)
         return 1
@@ -150,36 +268,43 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         print(
             f"ok: {len(fixtures.entries)} courses, {len(fixtures.equivalences)} "
-            f"equivalences, {len(fixtures.retired)} retired ids for "
-            f"{fixtures.catalog_year} — no dangling references, no cycles"
+            f"equivalences, {len(fixtures.retired)} retired ids, {len(programs)} "
+            f"programs, {len(students)} students for {fixtures.catalog_year} "
+            f"— no dangling references, no cycles"
         )
         return 0
 
     # Imported here so the --check path above never opens a session.
     from app.db import SessionLocal
 
+    year = fixtures.catalog_year
     with SessionLocal() as session:
-        if args.if_empty:
-            existing = session.scalar(
-                select(func.count(CourseVersion.id))
-                .join(CatalogYear)
-                .where(CatalogYear.label == fixtures.catalog_year)
-            )
-            if existing:
-                print(f"{fixtures.catalog_year} already has {existing} courses — skipping")
-                return 0
-        n = upsert(
-            session,
-            fixtures.catalog_year,
-            fixtures.entries,
-            fixtures.equivalences,
-            fixtures.retired,
-        )
+        # --if-empty decides per part, so a database seeded before programs and
+        # students existed still picks them up on the next start.
+        def empty(count_stmt) -> bool:
+            return not args.if_empty or not session.scalar(count_stmt)
 
-    print(
-        f"seeded {n} courses, {len(fixtures.equivalences)} equivalences, "
-        f"{len(fixtures.retired)} retired ids into {fixtures.catalog_year}"
-    )
+        if empty(
+            select(func.count(CourseVersion.id))
+            .join(CatalogYear)
+            .where(CatalogYear.label == year)
+        ):
+            n = upsert(session, year, fixtures.entries, fixtures.equivalences, fixtures.retired)
+            print(
+                f"seeded {n} courses, {len(fixtures.equivalences)} equivalences, "
+                f"{len(fixtures.retired)} retired ids into {year}"
+            )
+        else:
+            print(f"{year} catalog already loaded — skipping")
+
+        if programs and empty(
+            select(func.count(ProgramVersion.id))
+            .join(CatalogYear)
+            .where(CatalogYear.label == year)
+        ):
+            print(f"seeded {upsert_programs(session, year, programs)} programs")
+        if students and empty(select(func.count(Student.id))):
+            print(f"seeded {upsert_students(session, year, students)} students")
     return 0
 
 

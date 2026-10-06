@@ -23,6 +23,17 @@ catalog if it is empty.
 | API docs (generated) | http://localhost:8000/docs |
 | Health | http://localhost:8000/health |
 
+Checkpoint 2 endpoints (all also in `/docs`):
+
+| endpoint | what it shows |
+|---|---|
+| `GET /api/graph?student=demo` | every course with the demo student's status: completed, planned, eligible, locked |
+| `GET /api/graph?subject=CSC&subject=ECON` | department filter; depth still comes from the whole catalog |
+| `GET /api/graph?program=MAJOR-CSC` | a program's courses and everything leading to them |
+| `GET /api/graph/chain/CSC-340` | what must come first (required vs one-of-a-choice) and what it opens up |
+| `GET /api/programs/MAJOR-CSC/order` | topological order in terms, with the branch choices it assumed |
+| `GET /api/students/demo` | the fictional demo student's transcript, plan and programs |
+
 Postgres is deliberately not published to a host port — reach it with
 `docker compose exec db psql -U coursegraph -d coursegraph`. Publishing it only
 invites a port collision on whatever machine the project is demonstrated from.
@@ -50,9 +61,12 @@ docker compose exec db psql -U coursegraph -d coursegraph -c \
 
 ## Catalog data
 
-`backend/data/` holds hand-curated fixtures for the 2025-26 catalog:
-`csc_catalog_2025_26.json` (29 courses) and `math_catalog_2025_26.json`
-(35 courses + 10 out-of-scope stubs). Prerequisites are already expression
+`backend/data/` holds curated fixtures for the 2025-26 catalog:
+`csc_catalog_2025_26.json` (29 courses), `math_catalog_2025_26.json`
+(35 courses + 5 out-of-scope stubs) and `econ_catalog_2025_26.json`
+(36 courses + 1 stub) — 100 courses across three departments. The ECON file
+was transcribed for Checkpoint 2 and is marked in its `provenance` field as
+not yet verified line by line. Prerequisites are already expression
 trees; the CSC file's `conventions` block is the reference for the node
 vocabulary.
 
@@ -61,12 +75,17 @@ files it under — never a server default. Loading fixtures that disagree on the
 year is refused, so a 2026-27 catalog can be added alongside this one without
 either overwriting the other.
 
-The data was verified line by line against `depauw-university-2025-2026-catalog.pdf`.
-Two prerequisite sentences remain genuinely ambiguous **in the catalog itself**
-and are flagged in the fixtures' `notes` for departmental confirmation:
+The CSC and MATH data was verified line by line against
+`depauw-university-2025-2026-catalog.pdf`. These prerequisite sentences are
+genuinely ambiguous **in the catalog itself** and are flagged in the fixtures'
+`notes` for departmental confirmation:
 
 - MATH 331 — "ECON 100 and MATH 136 or MATH 151 or ECON 375"
 - MATH 367 — "MATH 270 and CSC 121 or permission of instructor"
+- ECON 420 — "ECON 294 and ECON 295 or permission of instructor"
+- ECON 450 — "ECON 350, MATH 141, MATH 240, MATH 247 or permission of
+  instructor. MATH 151 or the equivalent." (MATH 240 appears nowhere else in
+  the catalog and is kept as a stub)
 
 MATH 341 cites BIO 275 and MATH 348 cites BIO 375 for what appears to be the
 same slot; both are recorded as written.
@@ -85,7 +104,8 @@ demonstrated against a live stack:
 
 ```sh
 docker compose exec backend python -m scripts.seed --check \
-  data/corrupt/csc_cycle_via_renumber.json data/math_catalog_2025_26.json
+  data/corrupt/csc_cycle_via_renumber.json \
+  data/math_catalog_2025_26.json data/econ_catalog_2025_26.json
 # refusing to load:
 # 1 problem(s) found:
 #   prerequisite cycle: CSC-235 -> CSC-236 (cited as CSC-233) -> CSC-235

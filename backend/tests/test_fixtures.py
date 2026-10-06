@@ -16,6 +16,7 @@ from app.services.validation import CatalogError, describe_cycle, find_cycle
 DATA = Path(__file__).resolve().parent.parent / "data"
 CSC = DATA / "csc_catalog_2025_26.json"
 MATH = DATA / "math_catalog_2025_26.json"
+ECON = DATA / "econ_catalog_2025_26.json"
 CORRUPT = DATA / "corrupt"
 
 C = lambda c: {"type": "course", "course_id": c}  # noqa: E731
@@ -46,9 +47,12 @@ def test_mixed_catalog_years_are_refused(tmp_path):
 
 
 def test_the_real_catalog_passes():
-    fixtures = check([CSC, MATH])
+    """Checkpoint 2's bar: ~100 courses across three departments."""
+    fixtures = check([CSC, MATH, ECON])
     assert fixtures.catalog_year == "2025-2026"
-    assert len(fixtures.entries) == 29 + 35 + 10
+    real = [e for e in fixtures.entries if not e["stub"]]
+    assert len(real) == 100
+    assert {e["subject"] for e in real} == {"CSC", "MATH", "ECON"}
 
 
 def test_duplicate_course_across_files_is_refused(tmp_path):
@@ -71,7 +75,7 @@ def test_curated_course_cannot_shadow_a_stub(tmp_path):
 def test_only_renumberings_redirect_references():
     """MATH-136 'satisfies' MATH-151 but is still a course: references to it
     must not be rewritten."""
-    renumbering = read_fixtures([CSC, MATH]).renumbering
+    renumbering = read_fixtures([CSC, MATH, ECON]).renumbering
     assert renumbering["CSC-233"] == "CSC-236"
     assert "MATH-136" not in renumbering
 
@@ -86,19 +90,19 @@ def refusal(*paths: Path) -> str:
 
 
 def test_direct_cycle_is_refused_and_named():
-    msg = refusal(CORRUPT / "csc_cycle_direct.json", MATH)
+    msg = refusal(CORRUPT / "csc_cycle_direct.json", MATH, ECON)
     assert "1 problem(s) found" in msg
     assert "prerequisite cycle: CSC-121 -> CSC-231 -> CSC-125 -> CSC-121" in msg
 
 
 def test_cycle_through_a_renumbering_names_the_cited_id():
-    msg = refusal(CORRUPT / "csc_cycle_via_renumber.json", MATH)
+    msg = refusal(CORRUPT / "csc_cycle_via_renumber.json", MATH, ECON)
     assert "prerequisite cycle: CSC-235 -> CSC-236 (cited as CSC-233) -> CSC-235" in msg
 
 
 def test_loop_through_an_alternative_is_accepted():
     """Taking CSC-121 escapes the loop, so the catalog is still satisfiable."""
-    check([CORRUPT / "csc_or_loop.json", MATH])
+    check([CORRUPT / "csc_or_loop.json", MATH, ECON])
 
 
 def test_every_corrupted_fixture_says_what_was_changed():
