@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/*.tsbuildinfo"
+    - "!docs/demo-db.sql"
+  path_instructions:
+    - path: "backend/alembic/versions/**"
+      instructions: >-
+        Migrations are numbered and append-only. Flag any edit to an existing
+        migration; only new files are allowed.
+    - path: "backend/data/**"
+      instructions: >-
+        Catalog fixtures record catalog text as written. Flag silent fixes to
+        catalog text (ambiguities belong in the fixture's notes) and any real
+        student record; only the fictional demo and demo-2 students belong here.
+    - path: "backend/app/services/**"
+      instructions: >-
+        Services are pure Python with no database access. Prerequisites are boolean
+        trees; consent and placement must evaluate to UNKNOWN. Standing projection
+        must stay consistent across ordering.py, semesters.py and planner.py.
+    - path: "backend/app/api/**"
+      instructions: >-
+        Routers stay thin. Check access control: a student's record is readable only
+        by that student, their advisor, or anyone for the public demo student; record
+        writes need the owner.
+    - path: "frontend/**"
+      instructions: >-
+        Every API call goes through lib/api.ts. Pages get their student from
+        useStudent(); flag any student picker. Pages must work from 390px wide, and
+        status is never shown by colour alone.
+chat:
+  auto_reply: true
