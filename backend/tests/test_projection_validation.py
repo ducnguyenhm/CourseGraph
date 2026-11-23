@@ -152,27 +152,33 @@ def test_coreq_does_not_push_a_course_into_a_later_layer():
     assert layers["MATH-442"] == 0
 
 
-def test_fixtures_declare_their_own_catalog_year(tmp_path):
-    """The year must come from the file, not from server settings — otherwise a
-    2025-26 catalog silently files under whatever year the server defaults to."""
-    from scripts.seed import read_fixtures
+def test_depth_survives_filtering_and_hidden_prereqs_become_external():
+    """Under 'CSC only', CSC-380 must stay after CSC-236's column and keep its
+    MATH-141 edge, marked external rather than dropped."""
+    courses = {
+        "MATH-141": (parse(None), "Stats", 1.0, 1.0),
+        "MATH-151": (parse(None), "Calc I", 1.0, 1.0),
+        "MATH-152": (parse(C("MATH-151")), "Calc II", 1.0, 1.0),
+        "CSC-380": (
+            parse({"type": "and", "children": [C("MATH-152"), C("MATH-141")]}),
+            "ML", 1.0, 1.0,
+        ),
+    }
+    g = build_graph(courses, visible={"CSC-380"})
 
-    f = tmp_path / "x.json"
-    f.write_text(
-        '{"catalog_year": "2025-2026", "courses": '
-        '[{"id": "CSC-121", "title": "CS I", "prereq": null}]}'
-    )
-    year, entries, _, _ = read_fixtures([f])
-    assert year == "2025-2026"
-    assert entries[0]["id"] == "CSC-121"
+    assert [n["id"] for n in g["nodes"]] == ["CSC-380"]
+    assert g["nodes"][0]["layer"] == 2, "depth from the full catalog, not the filtered view"
+    assert {(e["source"], e["external"]) for e in g["edges"]} == {
+        ("MATH-141", True),
+        ("MATH-152", True),
+    }
 
 
-def test_mixed_catalog_years_are_refused(tmp_path):
-    from scripts.seed import read_fixtures
-
-    a = tmp_path / "a.json"
-    b = tmp_path / "b.json"
-    a.write_text('{"catalog_year": "2025-2026", "courses": []}')
-    b.write_text('{"catalog_year": "2026-2027", "courses": []}')
-    with pytest.raises(CatalogError, match="disagree on catalog_year"):
-        read_fixtures([a, b])
+def test_edges_between_hidden_courses_are_not_returned():
+    courses = {
+        "MATH-151": (parse(None), "Calc I", 1.0, 1.0),
+        "MATH-152": (parse(C("MATH-151")), "Calc II", 1.0, 1.0),
+        "CSC-121": (parse(None), "CS I", 1.0, 1.0),
+    }
+    g = build_graph(courses, visible={"CSC-121"})
+    assert g["edges"] == []

@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://coursegraph:coursegraph@localhost:5432/coursegraph"
     default_catalog_year: str = "2025-2026"
     cors_origins: list[str] = ["http://localhost:3000"]
+    # Signs login tokens. The default is for local Docker Compose only; set
+    # SECRET_KEY anywhere the app is reachable by anyone else.
+    secret_key: str = "coursegraph-local-dev-secret"
+    # The student a demonstration session plans for.
+    demo_student: str = "demo"
 
 
 settings = Settings()

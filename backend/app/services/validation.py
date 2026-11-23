@@ -82,6 +82,28 @@ def find_cycle(
     return None
 
 
+def describe_cycle(
+    cycle: list[str],
+    trees: dict[str, PrereqNode],
+    equivalences: dict[str, str] | None = None,
+) -> str:
+    """'A -> B (cited as C) -> A'.
+
+    A hop that only exists after renumbering is labelled with the id the
+    fixture actually wrote — otherwise the message names a course the corrupted
+    file never mentions, which reads like the wrong answer.
+    """
+    eq = equivalences or {}
+    parts = [cycle[0]]
+    for course, dep in zip(cycle, cycle[1:]):
+        refs = required_ids(trees[course])
+        cited = None
+        if dep not in refs:
+            cited = next((r for r in sorted(refs) if resolve(r, eq) == dep), None)
+        parts.append(f"{dep} (cited as {cited})" if cited else dep)
+    return " -> ".join(parts)
+
+
 def validate(
     trees: dict[str, PrereqNode], equivalences: dict[str, str] | None = None
 ) -> None:
@@ -95,7 +117,9 @@ def validate(
         )
 
     if cycle := find_cycle(trees, equivalences):
-        problems.append("prerequisite cycle: " + " -> ".join(cycle))
+        problems.append(
+            "prerequisite cycle: " + describe_cycle(cycle, trees, equivalences)
+        )
 
     if problems:
         raise CatalogError(

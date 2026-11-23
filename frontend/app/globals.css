@@ -3,8 +3,8 @@
 /*
  * CourseGraph design system.
  * Academic register: warm paper surfaces, ink type, DePauw gold accent.
- * The four course-status tokens are defined here but not yet used — status
- * depends on a student record, which arrives with the requirement engine.
+ * Four course-status tokens drive the graph's node colours. Colour is never
+ * the only signal: each status also has its own border style and icon.
  */
 
 @theme inline {
@@ -61,6 +61,18 @@
   --gold-foreground: oklch(0.24 0.03 260);
   --warning: oklch(0.62 0.16 55);
   --warning-soft: oklch(0.95 0.05 65);
+  --status-completed: oklch(0.5 0.11 150);
+  --status-completed-soft: oklch(0.93 0.05 150);
+  --status-planned: oklch(0.45 0.12 255);
+  --status-planned-soft: oklch(0.93 0.03 255);
+  --status-eligible: oklch(0.6 0.13 85);
+  --status-eligible-soft: oklch(0.97 0.04 90);
+  --status-locked: oklch(0.6 0.015 255);
+  --status-locked-soft: oklch(0.94 0.006 85);
+  /* Selected-course highlight. Hues no status uses, so a halo is never
+     mistaken for a status in either theme. */
+  --chain-up: oklch(0.5 0.2 300);
+  --chain-down: oklch(0.55 0.12 195);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,6 +95,16 @@
     --ring: oklch(0.79 0.15 85);
     --warning: oklch(0.78 0.14 60);
     --warning-soft: oklch(0.35 0.07 60);
+    --status-completed: oklch(0.75 0.13 150);
+    --status-completed-soft: oklch(0.32 0.06 150);
+    --status-planned: oklch(0.75 0.1 255);
+    --status-planned-soft: oklch(0.32 0.05 255);
+    --status-eligible: oklch(0.82 0.13 85);
+    --status-eligible-soft: oklch(0.3 0.04 85);
+    --status-locked: oklch(0.6 0.015 255);
+    --status-locked-soft: oklch(0.25 0.015 260);
+    --chain-up: oklch(0.74 0.15 300);
+    --chain-down: oklch(0.8 0.11 195);
   }
 }
 

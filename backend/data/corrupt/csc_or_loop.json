@@ -1,0 +1,607 @@
+{
+  "corruption": "CONTROL CASE for the cycle-detection demo — this one is ACCEPTED. Identical to csc_catalog_2025_26.json except CSC-125 now requires CSC-121 or CSC-235, and CSC-235 requires CSC-125. The loop runs only through an 'or' branch, and taking CSC-121 escapes it, so the catalog is still satisfiable.",
+  "catalog_year": "2025-2026",
+  "source": "DePauw University Catalog 2025-2026, Computer Science course listings",
+  "conventions": {
+    "course_id": "SUBJECT-NUMBER with the competence suffix stripped (CSC 235Q -> CSC-235). Competence is recorded per enrollment, since the transcript records it per section.",
+    "credits": "DePauw course units. Fixed courses have credits_min == credits_max.",
+    "prereq": "Boolean expression tree. null = no prerequisite.",
+    "node_types": {
+      "and / or": "children[]",
+      "course": "course_id - must be completed in an EARLIER term",
+      "coreq": "course_id - completed earlier OR taken in the SAME term (catalog: 'pre- or co-requisite')",
+      "standing": "min_level or max_level: first_year | sophomore | junior | senior",
+      "course_level": "count of completed courses in subject with number >= min_number",
+      "consent": "by: instructor | chair. Evaluates to UNKNOWN (needs manual confirmation), never true or false"
+    }
+  },
+  "courses": [
+    {
+      "id": "CSC-120",
+      "subject": "CSC",
+      "number": 120,
+      "title": "Computer Science for All",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": null,
+      "counts_toward_major": false,
+      "counts_toward_major_gpa": false,
+      "notes": "Does not count toward CS major, CS minor, or Data Science minor."
+    },
+    {
+      "id": "CSC-121",
+      "subject": "CSC",
+      "number": 121,
+      "title": "Computer Science I",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": null,
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-125",
+      "subject": "CSC",
+      "number": 125,
+      "title": "Principles of Software Development",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-121"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "formerly": "CSC-232"
+    },
+    {
+      "id": "CSC-184",
+      "subject": "CSC",
+      "number": 184,
+      "title": "On-Campus Extended Studies Course",
+      "credits_min": 0.0,
+      "credits_max": 0.5,
+      "attributes": [
+        "ES"
+      ],
+      "prereq": null,
+      "repeatable": true,
+      "counts_toward_major": false,
+      "counts_toward_major_gpa": false,
+      "notes": "Winter or May term. Topic varies per offering."
+    },
+    {
+      "id": "CSC-185",
+      "subject": "CSC",
+      "number": 185,
+      "title": "Extended Studies Independent Project",
+      "credits_min": 0.0,
+      "credits_max": 0.0,
+      "attributes": [
+        "ES"
+      ],
+      "prereq": null,
+      "counts_toward_major": false,
+      "counts_toward_major_gpa": false,
+      "notes": "Student-initiated, under faculty guidance. Catalog lists no formal prerequisite."
+    },
+    {
+      "id": "CSC-197",
+      "subject": "CSC",
+      "number": 197,
+      "title": "First-Year Seminar",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "standing",
+        "max_level": "first_year"
+      },
+      "counts_toward_major": false,
+      "counts_toward_major_gpa": false,
+      "notes": "Open only to first-year students - an upper bound on standing, not a lower one."
+    },
+    {
+      "id": "CSC-231",
+      "subject": "CSC",
+      "number": 231,
+      "title": "Computer Systems",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-125"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-235",
+      "subject": "CSC",
+      "number": 235,
+      "title": "Data Structures",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SM",
+      "competence_variants": [
+        "Q"
+      ],
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-125"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "formerly": "CSC-122",
+      "notes": "Catalog lists only the Q version (235Q); other courses cite it as plain CSC 235."
+    },
+    {
+      "id": "CSC-236",
+      "subject": "CSC",
+      "number": 236,
+      "title": "Algorithmic Foundations of Computation",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-235"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "formerly": "CSC-233"
+    },
+    {
+      "id": "CSC-296",
+      "subject": "CSC",
+      "number": 296,
+      "title": "Computer Science Topics",
+      "credits_min": 0.25,
+      "credits_max": 1.0,
+      "prereq": null,
+      "repeatable": true,
+      "counts_toward_major": "allied_depending_on_topic",
+      "counts_toward_major_gpa": false
+    },
+    {
+      "id": "CSC-320",
+      "subject": "CSC",
+      "number": 320,
+      "title": "Human Computer Interaction",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-125"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-322",
+      "subject": "CSC",
+      "number": 322,
+      "title": "Computer Networking",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-330",
+      "subject": "CSC",
+      "number": 330,
+      "title": "Artificial Intelligence",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "coreq",
+        "course_id": "CSC-236"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "notes": "Catalog: 'Pre- or co-requisite: CSC 236' - stated in the description, not the Prerequisites field."
+    },
+    {
+      "id": "CSC-340",
+      "subject": "CSC",
+      "number": 340,
+      "title": "Web Programming and Cybersecurity",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-342",
+      "subject": "CSC",
+      "number": 342,
+      "title": "Mobile Development",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-235"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-350",
+      "subject": "CSC",
+      "number": 350,
+      "title": "Graphics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-235"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-360",
+      "subject": "CSC",
+      "number": 360,
+      "title": "Autonomous Robotics",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-236"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-370",
+      "subject": "CSC",
+      "number": 370,
+      "title": "Data Mining",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-236"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-380",
+      "subject": "CSC",
+      "number": 380,
+      "title": "Machine Learning",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-236"
+          },
+          {
+            "type": "course",
+            "course_id": "MATH-141"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "notes": "Catalog Prerequisites field is malformed ('s CSC236, MATH141.'); read from description."
+    },
+    {
+      "id": "CSC-396",
+      "subject": "CSC",
+      "number": 396,
+      "title": "Computer Science Topics",
+      "credits_min": 0.25,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "consent",
+        "by": "instructor"
+      },
+      "repeatable": true,
+      "counts_toward_major": "depends_on_topic",
+      "counts_toward_major_gpa": true,
+      "notes": "'By permission of instructor or to those who satisfy prerequisites determined by the instructor.'"
+    },
+    {
+      "id": "CSC-398",
+      "subject": "CSC",
+      "number": 398,
+      "title": "Independent Study",
+      "credits_min": 0.25,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "consent",
+            "by": "instructor"
+          },
+          {
+            "type": "consent",
+            "by": "chair"
+          }
+        ]
+      },
+      "repeatable": true,
+      "counts_toward_major": false,
+      "counts_toward_major_gpa": false,
+      "notes": "No credit from CSC 398 counts toward the CS major."
+    },
+    {
+      "id": "CSC-424",
+      "subject": "CSC",
+      "number": 424,
+      "title": "Programming Languages",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-236"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "offered": "biannually"
+    },
+    {
+      "id": "CSC-426",
+      "subject": "CSC",
+      "number": 426,
+      "title": "Compilers",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-236"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true,
+      "offered": "biannually"
+    },
+    {
+      "id": "CSC-428",
+      "subject": "CSC",
+      "number": 428,
+      "title": "Operating Systems",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-430",
+      "subject": "CSC",
+      "number": 430,
+      "title": "Computer Security",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "or",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-440",
+      "subject": "CSC",
+      "number": 440,
+      "title": "Theory of Computation",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "course",
+        "course_id": "CSC-236"
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-480",
+      "subject": "CSC",
+      "number": 480,
+      "title": "Database and File Systems",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-496",
+      "subject": "CSC",
+      "number": 496,
+      "title": "Computer Science Topics",
+      "credits_min": 0.25,
+      "credits_max": 1.0,
+      "prereq": {
+        "type": "consent",
+        "by": "instructor"
+      },
+      "repeatable": true,
+      "counts_toward_major": "depends_on_topic",
+      "counts_toward_major_gpa": true
+    },
+    {
+      "id": "CSC-498",
+      "subject": "CSC",
+      "number": 498,
+      "title": "Senior Project",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "attributes": [
+        "S"
+      ],
+      "prereq": {
+        "type": "and",
+        "children": [
+          {
+            "type": "course",
+            "course_id": "CSC-231"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-235"
+          },
+          {
+            "type": "course",
+            "course_id": "CSC-236"
+          },
+          {
+            "type": "standing",
+            "min_level": "senior"
+          },
+          {
+            "type": "course_level",
+            "subject": "CSC",
+            "min_number": 300,
+            "count": 1
+          }
+        ]
+      },
+      "counts_toward_major": true,
+      "counts_toward_major_gpa": true
+    }
+  ],
+  "stub_courses": [],
+  "retired_ids": [
+    {
+      "id": "CSC-122",
+      "title": "Data Structures"
+    },
+    {
+      "id": "CSC-232",
+      "title": "Object-Oriented Software Development"
+    },
+    {
+      "id": "CSC-233",
+      "title": "Algorithmic Foundations"
+    }
+  ],
+  "equivalences": [
+    {
+      "from": "CSC-122",
+      "to": "CSC-235",
+      "relation": "renumber",
+      "note": "Sequence also changed: old 122 came BEFORE 232; new 235 comes AFTER 125."
+    },
+    {
+      "from": "CSC-232",
+      "to": "CSC-125",
+      "relation": "renumber",
+      "note": "Moved from 200-level to 100-level and now precedes Data Structures."
+    },
+    {
+      "from": "CSC-233",
+      "to": "CSC-236",
+      "relation": "renumber"
+    }
+  ]
+}

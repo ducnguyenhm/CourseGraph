@@ -70,12 +70,12 @@ export default function CoursePage({
         <div className="grid gap-5 md:grid-cols-2">
           <section className="panel p-4">
             <h2 className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
-              Curator&apos;s note on the catalog text
+              Catalog text
             </h2>
             <p className="font-mono text-xs leading-relaxed">
               {course.prereq_raw || (
                 <span className="not-italic text-muted-foreground">
-                  No note — the catalog wording was unambiguous.
+                  The catalog prints no prerequisite sentence for this course.
                 </span>
               )}
             </p>

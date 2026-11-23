@@ -1,0 +1,210 @@
+{
+  "catalog_year": "2025-2026",
+  "purpose": "Demo student, named for the author. The coursework is a made-up record, not the author's real transcript. Built so every status appears on the graph: CSC 122/232 under retired numbers (resolving to 235/125), two courses in progress, three planned, and courses eligible only through consent (e.g. ECON 360). Checkpoint 3 adds a fuller first two years outside CSC/MATH/ECON (stub courses in other_stubs_2025_26.json) so the B.A. degree requirements have something to count, and records competence per section: Q in MATH 151, W in MATH 270. SOC 237 (SS-or-PPD) and REL 130 (AH-or-GL) can each fill only one area, so one of each pair stays outstanding. Checkpoint 4 adds a second fictional student, demo-2 (a sophomore in MATH with a CSC minor), so the advisor dashboard lists more than one advisee.",
+  "students": [
+    {
+      "id": "demo",
+      "name": "Duc Nguyen",
+      "class_standing": "junior",
+      "expected_graduation": "2027SP",
+      "programs": [
+        "MAJOR-CSC",
+        "MINOR-MATH"
+      ],
+      "enrollments": [
+        {
+          "course_id": "CSC-121",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "MATH-151",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "B+",
+          "competence": "Q"
+        },
+        {
+          "course_id": "ARTH-197",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "JAPN-151",
+          "term": "2023FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "CSC-122",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "MATH-152",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "JAPN-152",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "REL-130",
+          "term": "2024SP",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "CSC-232",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-123",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "ECON-100",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "SOC-237",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "CSC-231",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-223",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "ARTH-132",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "CSC-184",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "CSC-236",
+          "term": "2025FA",
+          "status": "in_progress"
+        },
+        {
+          "course_id": "MATH-270",
+          "term": "2025FA",
+          "status": "in_progress",
+          "competence": "W"
+        }
+      ],
+      "plan": [
+        {
+          "course_id": "CSC-322",
+          "term": "2026SP"
+        },
+        {
+          "course_id": "CSC-340",
+          "term": "2026SP"
+        },
+        {
+          "course_id": "CSC-498",
+          "term": "2027SP"
+        }
+      ]
+    },
+    {
+      "id": "demo-2",
+      "name": "John Dee",
+      "class_standing": "sophomore",
+      "expected_graduation": "2028SP",
+      "start_term": "2024FA",
+      "programs": [
+        "MAJOR-MATH",
+        "MINOR-CSC"
+      ],
+      "enrollments": [
+        {
+          "course_id": "MATH-151",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A-",
+          "competence": "Q"
+        },
+        {
+          "course_id": "CSC-121",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "A"
+        },
+        {
+          "course_id": "ECON-100",
+          "term": "2024FA",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-152",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B+"
+        },
+        {
+          "course_id": "MATH-123",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "A-"
+        },
+        {
+          "course_id": "CSC-122",
+          "term": "2025SP",
+          "status": "completed",
+          "grade": "B"
+        },
+        {
+          "course_id": "MATH-223",
+          "term": "2025FA",
+          "status": "in_progress"
+        },
+        {
+          "course_id": "MATH-270",
+          "term": "2025FA",
+          "status": "in_progress"
+        }
+      ],
+      "plan": [
+        {
+          "course_id": "MATH-251",
+          "term": "2026SP"
+        },
+        {
+          "course_id": "MATH-371",
+          "term": "2026SP"
+        }
+      ]
+    }
+  ]
+}
