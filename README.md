@@ -3,8 +3,10 @@
 Interactive prerequisite graph and multi-major degree planner for the DePauw
 catalog. Senior project, CSC 498S.
 
-Design for the current checkpoint: [`docs/checkpoint-2-design.md`](docs/checkpoint-2-design.md)
-(previous: [`docs/checkpoint-1-design.md`](docs/checkpoint-1-design.md)).
+Design for the current checkpoint: [`docs/checkpoint-4-design.md`](docs/checkpoint-4-design.md)
+(previous: [`docs/checkpoint-3-design.md`](docs/checkpoint-3-design.md),
+[`docs/checkpoint-2-design.md`](docs/checkpoint-2-design.md),
+[`docs/checkpoint-1-design.md`](docs/checkpoint-1-design.md)).
 
 ## Running
 
@@ -33,6 +35,48 @@ Checkpoint 2 endpoints (all also in `/docs`):
 | `GET /api/graph/chain/CSC-340` | what must come first (required vs one-of-a-choice) and what it opens up |
 | `GET /api/programs/MAJOR-CSC/order` | topological order in terms, with the branch choices it assumed |
 | `GET /api/students/demo` | the fictional demo student's transcript, plan and programs |
+
+Checkpoint 3 so far:
+
+| endpoint / page | what it shows |
+|---|---|
+| `GET /api/students/demo/audit/MAJOR-CSC` | the requirement engine on the CS major: every requirement complete, in progress, planned or outstanding, with the courses meeting it |
+| `GET /api/students/demo/audit/DEGREE-BA` | the B.A. graduation requirements: credit and attribute counts, Exploratory Foundations |
+| http://localhost:3000/audit | the same, as a page, for any program, for the logged-in student |
+| `GET /api/students/demo/semesters?max_load=4.5&add=MAJOR-MATH` | minimum terms left: the prerequisite-chain bound, the credit bound, the greater of the two, and whether that fits before graduation |
+| `GET /api/students/demo/explore?add=MINOR-DATA` | the explorer: what adding programs would cost (requirements already met, courses counting twice, new courses and credits, change in minimum terms) |
+| http://localhost:3000/explore | the same, as the two-panel explorer page |
+| `GET /api/students/demo/progress` | every declared program plus the degree, with credit totals and the courses counting toward more than one program |
+| http://localhost:3000/progress | the degree progress view |
+| http://localhost:3000/record | your own course record: add, correct and remove courses; set your start and graduation terms and programs (advisors see it read-only) |
+| http://localhost:3000/signup | create a student account with an empty record, and pick an advisor |
+
+Checkpoint 4:
+
+| endpoint / page | what it shows |
+|---|---|
+| http://localhost:3000 | landing page; **Try the demo** plans for the fictional demo student without an account |
+| http://localhost:3000/planner | the semester planner: drag courses into terms, rejections name the unmet prerequisite, overload warnings, overrides with a note |
+| http://localhost:3000/login | demonstration logins: `advisor` / `advisor-demo`, `demo` / `student-demo`, `demo-2` / `student-demo` |
+| http://localhost:3000/advisees | the advisor dashboard (log in as `advisor`) |
+| `GET /api/students/demo/plan?max_load=4.5` | the plan in term columns, every placement checked, loads, overloaded terms, courses still needed |
+| `PUT /api/students/demo/plan/CSC-498` `{"term": "2026SP"}` | place or move a course; 409 with the check when a prerequisite is unmet, unless `override` gives a note |
+| `POST /api/demo/session` | a demo session: send its token as `X-Demo-Session`; nothing under it is saved |
+| `POST /api/auth/login`, `GET /api/advisor/advisees` | logins and the dashboard |
+| `DELETE/PUT /api/students/{key}/plan/terms/{term}` | take an empty future term out of the plan, or put it back |
+| `GET/POST /api/students/{key}/comments`, `POST /api/comments/{id}/replies`, `POST /api/comments/{id}/resolve` | conversations between a student and their advisor on a plan or a placement |
+
+Every page shows one student, chosen by the login: a student sees only their own record, an
+advisor only their advisees (opened from `/advisees`), and a demo session the demo student.
+Without a login, the pages ask you to log in or try the demo; the catalog graph stays open.
+The API enforces the same rule (`check_view`): a student's record answers 401 without a login
+and 403 to anyone else, except the fictional `demo` student, which is public for demo mode.
+Writes to a record need the student's own login; writes to a plan, the student's login or a
+demo session. Records created on `/record` or by signing up live only in the database, never in
+`backend/data/`, and are lost by `docker compose down -v`. The demo logins' records can be
+changed freely; `docker compose exec backend python -m scripts.seed` puts `demo` and `demo-2`
+back as they were. Set `SECRET_KEY` before the app is reachable
+by anyone else; the default only suits a local Docker Compose stack.
 
 Postgres is deliberately not published to a host port — reach it with
 `docker compose exec db psql -U coursegraph -d coursegraph`. Publishing it only

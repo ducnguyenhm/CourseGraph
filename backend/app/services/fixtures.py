@@ -143,6 +143,11 @@ def read_students(
     doc = json.loads(path.read_text())
     _same_year(doc, path, fixtures)
     known = _known_ids(fixtures) | fixtures.retired
+    # Competence a course can carry: a section variant, or always (CSC 498 is S).
+    offers = {
+        normalize_id(e["id"]): set(e.get("competence_variants") or []) | set(e.get("attributes") or [])
+        for e in fixtures.entries
+    }
     problems = []
     for s in doc["students"]:
         for p in s.get("programs", []):
@@ -154,6 +159,13 @@ def read_students(
         for e in s.get("enrollments", []):
             if e.get("status", "completed") not in ("completed", "in_progress"):
                 problems.append(f"student {s['id']}: bad status {e['status']!r}")
+            comp = e.get("competence")
+            if comp is not None:
+                cid = normalize_id(e["course_id"])
+                if comp not in ("W", "Q", "S"):
+                    problems.append(f"student {s['id']}: bad competence {comp!r} on {cid}")
+                elif cid in offers and comp not in offers[cid]:
+                    problems.append(f"student {s['id']}: {cid} is not offered with {comp} competence")
     if problems:
         raise CatalogError(f"{len(problems)} problem(s) in {path.name}:\n  " + "\n  ".join(problems))
     return doc["students"]

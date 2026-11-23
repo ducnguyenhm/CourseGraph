@@ -1,0 +1,25 @@
+{
+  "purpose": "Demonstration logins for the Checkpoint 4 advisor walkthrough. The people are fictional and the passwords are public on purpose: they are printed on the login page. Hashed at seed time; never reuse them for a real record.",
+  "accounts": [
+    {
+      "key": "advisor",
+      "role": "advisor",
+      "name": "Prof. Brian Howard",
+      "password": "advisor-demo",
+      "advisees": [
+        "demo",
+        "demo-2"
+      ]
+    },
+    {
+      "key": "demo",
+      "role": "student",
+      "password": "student-demo"
+    },
+    {
+      "key": "demo-2",
+      "role": "student",
+      "password": "student-demo"
+    }
+  ]
+}

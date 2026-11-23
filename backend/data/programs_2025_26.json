@@ -1,8 +1,8 @@
 {
   "catalog_year": "2025-2026",
-  "source": "DePauw University Catalog 2025-2026: 'Requirements For A Major/Minor In' Computer Science (pp. 192-194) and Mathematics (pp. 392-393)",
-  "provenance": "Transcribed by Claude on 2026-10-05 for Checkpoint 2; not yet verified by the author. The old coursegraph-seed-data/majors_minors.json was used only as a cross-check.",
-  "rule_types": "all_of/any_of: children; specific_course: course_id; n_from_set: n plus either an enumerated 'courses' list or a subject/min_number filter with optional 'exclude'.",
+  "source": "DePauw University Catalog 2025-2026: 'Requirements For A Major/Minor In' Computer Science (pp. 192-194) and Mathematics (pp. 392-393); Data Science minor (pp. 194, 393); Graduation Requirements (pp. 15-23)",
+  "provenance": "Transcribed by Claude on 2026-10-05 for Checkpoint 2; not yet verified by the author. The old coursegraph-seed-data/majors_minors.json was used only as a cross-check. DEGREE-BA and the CS major's 300/400-level count were added by Claude on 2026-10-28 for Checkpoint 3, also unverified. MINOR-DATA was added by Claude on 2026-10-28, also unverified. Checked line by line by Claude on 2026-10-28 against text extracted from the 2025-2026 catalog PDF (DEGREE-BA pp. 15-23, MINOR-DATA pp. 194/393, the CS major's 300/400 count p. 192); fixed the PPD label and two notes. Author sign-off still pending.",
+  "rule_types": "all_of/any_of: children; specific_course: course_id; n_from_set: n plus either an enumerated 'courses' list or a subject/min_number filter with optional 'exclude'; credit_minimum: credits, optional subject/min_number/attribute filters; attribute_count: n and attribute. Both count without using courses up, over the whole record (scope 'record', default) or the courses this program's other rules placed (scope 'program'). An attribute_count marked exclusive takes its courses like n_from_set does; distinct_group makes every exclusive rule in the group draw from different subjects.",
   "programs": [
     {
       "id": "MAJOR-CSC",
@@ -54,6 +54,14 @@
               "CSC-398",
               "CSC-498"
             ]
+          },
+          {
+            "label": "Four 300/400-level courses, including CSC 498",
+            "rule": "credit_minimum",
+            "credits": 4,
+            "min_number": 300,
+            "scope": "program",
+            "notes": "Catalog 'Number 300 & 400 Level Courses: Four including CSC 498'. Counts courses already placed by the rules above; it does not need four more."
           },
           {
             "rule": "specific_course",
@@ -211,6 +219,172 @@
           }
         ]
       }
+    },
+    {
+      "id": "MINOR-DATA",
+      "kind": "minor",
+      "name": "Data Science",
+      "department": "CSC/MATH",
+      "total_courses": "5",
+      "requirements": {
+        "label": "Data Science minor",
+        "rule": "all_of",
+        "children": [
+          {
+            "label": "Statistics: MATH 141, PSY 214, ECON 350 or BIO 375",
+            "rule": "n_from_set",
+            "n": 1,
+            "courses": [
+              "MATH-141",
+              "PSY-214",
+              "ECON-350",
+              "BIO-375"
+            ]
+          },
+          {
+            "label": "Data methods: MATH 261, CSC 370 or CSC 380",
+            "rule": "n_from_set",
+            "n": 1,
+            "courses": [
+              "MATH-261",
+              "CSC-370",
+              "CSC-380"
+            ]
+          },
+          {
+            "label": "Statistical modelling: MATH 341, ECON 385 or ECON 450",
+            "rule": "n_from_set",
+            "n": 1,
+            "courses": [
+              "MATH-341",
+              "ECON-385",
+              "ECON-450"
+            ]
+          },
+          {
+            "rule": "specific_course",
+            "course_id": "CSC-121"
+          },
+          {
+            "rule": "specific_course",
+            "course_id": "CSC-125"
+          }
+        ]
+      },
+      "notes": "Listed under both Computer Science (p. 194) and Mathematics (p. 393) with the same text. The catalog prints no 300/400-level count and no other required courses. The group labels are ours; the catalog lists the courses only."
+    },
+    {
+      "id": "DEGREE-BA",
+      "kind": "degree",
+      "name": "Bachelor of Arts",
+      "department": "UNIV",
+      "total_courses": "31 credits",
+      "requirements": {
+        "label": "Bachelor of Arts degree requirements",
+        "rule": "all_of",
+        "children": [
+          {
+            "label": "31 credits",
+            "rule": "credit_minimum",
+            "credits": 31,
+            "notes": "The B.M.A. requires 32. Limits on Pass/Fail, internship, applied music, ROTC and PE credit are not modelled."
+          },
+          {
+            "label": "First-Year Seminar",
+            "rule": "attribute_count",
+            "n": 1,
+            "attribute": "FYS",
+            "notes": "Required of first-time degree students; transfer students and spring entrants do not take one."
+          },
+          {
+            "label": "Exploratory Foundations",
+            "rule": "all_of",
+            "notes": "No course may be used to satisfy more than one Exploratory Foundations requirement, and the six AH/SM/SS credits must come from six different subjects (catalog pp. 21-22).",
+            "children": [
+              {
+                "label": "Arts and Humanities",
+                "rule": "attribute_count",
+                "n": 2,
+                "attribute": "AH",
+                "exclusive": true,
+                "distinct_group": "foundations"
+              },
+              {
+                "label": "Science and Mathematics",
+                "rule": "attribute_count",
+                "n": 2,
+                "attribute": "SM",
+                "exclusive": true,
+                "distinct_group": "foundations"
+              },
+              {
+                "label": "Social Science",
+                "rule": "attribute_count",
+                "n": 2,
+                "attribute": "SS",
+                "exclusive": true,
+                "distinct_group": "foundations"
+              },
+              {
+                "label": "Intercultural Engagement Through Language",
+                "rule": "attribute_count",
+                "n": 2,
+                "attribute": "LA",
+                "exclusive": true,
+                "notes": "May be partly met by placement, an approved off-campus semester, or (for some international students) certification by the Registrar; none of these is modelled."
+              },
+              {
+                "label": "Global Learning",
+                "rule": "attribute_count",
+                "n": 1,
+                "attribute": "GL",
+                "exclusive": true,
+                "notes": "Also met by a DePauw-approved study abroad experience (p. 17), or at least 0.75 credit in a pre-approved off-campus Global Learning course (p. 22); international students meet it through their study at DePauw. None of these is modelled."
+              },
+              {
+                "label": "Power, Privilege and Diversity",
+                "rule": "attribute_count",
+                "n": 1,
+                "attribute": "PPD",
+                "exclusive": true
+              }
+            ]
+          },
+          {
+            "label": "Competencies",
+            "rule": "all_of",
+            "notes": "Competence is certified per section, so it comes from the transcript, not the course. W is due by the end of the sophomore year and Q by the end of the junior year; the deadlines are not modelled.",
+            "children": [
+              {
+                "label": "Expository writing (W)",
+                "rule": "attribute_count",
+                "n": 1,
+                "attribute": "W"
+              },
+              {
+                "label": "Quantitative reasoning (Q)",
+                "rule": "attribute_count",
+                "n": 1,
+                "attribute": "Q"
+              },
+              {
+                "label": "Oral communication (S)",
+                "rule": "attribute_count",
+                "n": 1,
+                "attribute": "S"
+              }
+            ]
+          },
+          {
+            "label": "Extended Studies: two experiences",
+            "rule": "attribute_count",
+            "n": 2,
+            "attribute": "ES",
+            "notes": "Non-credit Winter/May Term courses, internships and off-campus semesters also count, with Registrar approval; only ES-tagged courses are modelled."
+          }
+        ]
+      },
+      "notes": "Degree-wide requirements every B.A. student is held to, declared or not (catalog pp. 15-23). Also required but not modelled: one completed major with a 2.0 GPA, its senior capstone and writing-in-the-major requirement; 19 credits outside the major subject and 16 outside the major department; 15 credits in residence, including 6 of the last 8 courses; a 2.0 cumulative GPA."
     }
   ]
 }

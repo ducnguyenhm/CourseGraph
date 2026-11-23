@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from app.schemas.prereq import parse
-from app.services.fixtures import check, read_fixtures
+from app.services.fixtures import check, read_fixtures, read_students
 from app.services.validation import CatalogError, describe_cycle, find_cycle
 
 DATA = Path(__file__).resolve().parent.parent / "data"
@@ -115,3 +115,39 @@ def test_describe_cycle_leaves_direct_hops_unlabelled():
     cycle = find_cycle(trees)
     assert describe_cycle(cycle, trees) == " -> ".join(cycle)
     assert "cited" not in describe_cycle(cycle, trees)
+
+
+def _student(tmp_path, enrollment: dict) -> Path:
+    return write(
+        tmp_path / "students.json",
+        {
+            "catalog_year": "2025-2026",
+            "students": [{"id": "t", "name": "T", "class_standing": "junior",
+                          "expected_graduation": "2027SP", "enrollments": [enrollment]}],
+        },
+    )
+
+
+def test_competence_must_be_offered_by_the_course(tmp_path):
+    """MATH 270 is offered as Q or W; CSC 498 always carries S; MATH 152 has
+    a Q variant but never W."""
+    fixtures = check([CSC, MATH, ECON])
+    ok = [
+        {"course_id": "MATH-270", "term": "2025FA", "competence": "W"},
+        {"course_id": "CSC-498", "term": "2025FA", "competence": "S"},
+    ]
+    for e in ok:
+        read_students(_student(tmp_path, e), fixtures, set())
+    with pytest.raises(CatalogError, match="MATH-152 is not offered with W"):
+        read_students(_student(tmp_path, {"course_id": "MATH-152", "term": "2024SP", "competence": "W"}), fixtures, set())
+    with pytest.raises(CatalogError, match="bad competence"):
+        read_students(_student(tmp_path, {"course_id": "MATH-152", "term": "2024SP", "competence": "X"}), fixtures, set())
+
+
+def test_default_fixtures_load_with_programs_and_the_demo_student():
+    from app.services.fixtures import read_programs
+
+    fixtures = check([CSC, MATH, ECON, DATA / "other_stubs_2025_26.json"])
+    programs = read_programs(DATA / "programs_2025_26.json", fixtures)
+    assert "DEGREE-BA" in {p["id"] for p in programs}
+    read_students(DATA / "demo_student.json", fixtures, {p["id"] for p in programs})

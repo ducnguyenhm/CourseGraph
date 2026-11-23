@@ -20,6 +20,7 @@ import {
   type ProgramSummary,
   type Status,
 } from "@/lib/api";
+import { useStudent } from "@/lib/useStudent";
 
 const NODE_W = 150;
 const NODE_H = 52;
@@ -29,7 +30,6 @@ const SUBCOL_GAP = 16;
 const MAX_ROWS = 12;
 
 const DEPARTMENTS = ["CSC", "MATH", "ECON"];
-const DEMO_STUDENT = "demo";
 
 // Colour is never the only signal: each status also has its own border style
 // and icon, as the proposal's accessibility requirement asks.
@@ -90,6 +90,10 @@ export default function GraphPage() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [program, setProgram] = useState("");
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
+  // The catalog graph is public; statuses are the logged-in student's own.
+  const viewer = useStudent();
+  const student = viewer?.student ?? null;
+  const viewerReady = viewer !== null;
   const [withStudent, setWithStudent] = useState(true);
   const [showOrder, setShowOrder] = useState(false);
   const [order, setOrder] = useState<ProgramOrder | null>(null);
@@ -105,6 +109,16 @@ export default function GraphPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [chain, setChain] = useState<Chain | null>(null);
   const [view, setView] = useState({ x: 0, y: 0, k: 1 });
+  // Below md a pannable SVG of a hundred courses is unusable; the page swaps
+  // it for a list by prerequisite depth that keeps status and the chain.
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -114,7 +128,7 @@ export default function GraphPage() {
     if (depts?.length) setSubjects(DEPARTMENTS.filter((d) => depts.includes(d)));
     if (q.get("program")) setProgram(q.get("program")!.toUpperCase());
     if (q.get("order") === "1") setShowOrder(true);
-    if (q.get("student") === "0") setWithStudent(false);
+    if (q.get("progress") === "0") setWithStudent(false);
     pendingCourse.current = q.get("course")?.toUpperCase() ?? null;
     setReady(true);
   }, []);
@@ -125,14 +139,15 @@ export default function GraphPage() {
     if (subjects.length) q.set("dept", subjects.join(","));
     if (program) q.set("program", program);
     if (program && showOrder) q.set("order", "1");
-    if (!withStudent) q.set("student", "0");
+    if (viewer?.advisor && viewer.student) q.set("student", viewer.student);
+    if (!withStudent) q.set("progress", "0");
     if (selected) q.set("course", selected);
     const qs = q.toString();
     window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-  }, [ready, subjects, program, showOrder, withStudent, selected]);
+  }, [ready, subjects, program, showOrder, withStudent, selected, viewer?.advisor, viewer?.student]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !viewerReady) return;
     setPayload(null);
     setSelected(null);
     if (!subjects.length) return;
@@ -140,7 +155,7 @@ export default function GraphPage() {
       // All departments ticked means no filter, which also keeps stubs out.
       subjects: subjects.length === DEPARTMENTS.length ? undefined : subjects,
       program: program || undefined,
-      student: withStudent ? DEMO_STUDENT : undefined,
+      student: (withStudent && student) || undefined,
     })
       .then((p) => {
         setPayload(p);
@@ -149,10 +164,13 @@ export default function GraphPage() {
         if (wanted && p.nodes.some((n) => n.id === wanted)) setSelected(wanted);
       })
       .catch((e) => setError(String(e)));
-  }, [ready, subjects, program, withStudent]);
+  }, [ready, subjects, program, withStudent, student, viewerReady]);
 
   useEffect(() => {
-    fetchPrograms().then(setPrograms).catch(() => setPrograms([]));
+    // The degree requirements name no courses, so there is nothing to draw.
+    fetchPrograms()
+      .then((ps) => setPrograms(ps.filter((p) => p.kind !== "degree")))
+      .catch(() => setPrograms([]));
   }, []);
 
   useEffect(() => {
@@ -349,9 +367,9 @@ export default function GraphPage() {
         ) : null
       }
     >
-      <div className="flex h-[calc(100vh-81px)] min-h-0">
-        <div className="relative min-w-0 flex-1 overflow-hidden bg-surface-strong">
-          <div className="absolute left-4 top-4 z-10 flex flex-wrap items-start gap-2">
+      <div className="flex min-h-0 md:h-[calc(100vh-81px)]">
+        <div className="relative min-w-0 flex-1 bg-surface-strong md:overflow-hidden">
+          <div className="z-10 flex flex-wrap items-start gap-2 p-3 md:absolute md:left-4 md:top-4 md:p-0">
             <div className="relative">
               <input
                 value={query}
@@ -436,23 +454,26 @@ export default function GraphPage() {
                 Show order
               </label>
             ) : null}
-            <label className="flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm">
-              <input
-                type="checkbox"
-                checked={withStudent}
-                onChange={(e) => setWithStudent(e.target.checked)}
-              />
-              Demo student&apos;s progress
-            </label>
+            {student ? (
+              <label className="flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={withStudent}
+                  onChange={(e) => setWithStudent(e.target.checked)}
+                />
+                {viewer?.advisor ? `${student}'s progress` : "My progress"}
+              </label>
+            ) : null}
             <button
               onClick={fit}
-              className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm hover:bg-secondary"
+              className="hidden rounded-md border border-border bg-surface px-3 py-1.5 text-sm hover:bg-secondary md:inline-block"
             >
               Fit to view
             </button>
           </div>
 
-          <div className="absolute bottom-4 left-4 z-10 panel p-3 text-xs">
+          {/* The narrow list spells status out in words, so the legend is for the SVG only. */}
+          <div className="absolute bottom-4 left-4 z-10 hidden panel p-3 text-xs md:block">
             <div className="mb-2 font-medium uppercase tracking-wider text-muted-foreground">
               Legend
             </div>
@@ -551,6 +572,8 @@ export default function GraphPage() {
                 another program.
               </p>
             </div>
+          ) : narrow ? (
+            <SimpleGraph nodes={payload.nodes} selected={selected} role={focus?.role} onPick={setSelected} />
           ) : (
             <svg
               ref={svgRef}
@@ -731,9 +754,18 @@ export default function GraphPage() {
           )}
         </div>
 
-        <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-border bg-surface p-5 lg:block">
+        {/* Beside the graph from lg; below it, a bottom sheet while a course is selected. */}
+        <aside
+          className={`${course ? "block" : "hidden"} fixed inset-x-0 bottom-0 z-40 max-h-[60vh] overflow-y-auto border-t border-border bg-surface p-5 shadow-lg lg:static lg:block lg:max-h-none lg:w-80 lg:shrink-0 lg:border-l lg:border-t-0 lg:shadow-none`}
+        >
           {course ? (
             <div className="space-y-4 text-sm">
+              <button
+                onClick={() => setSelected(null)}
+                className="float-right rounded-md border border-border px-2 py-1 text-xs hover:bg-secondary lg:hidden"
+              >
+                Close
+              </button>
               <div>
                 <div className="font-display text-2xl">{course.label}</div>
                 <div className="text-muted-foreground">{course.title}</div>
@@ -896,6 +928,77 @@ export default function GraphPage() {
 
 // Courses outside the current filter are listed but not clickable: the chain
 // is computed over the whole catalog, so it can name courses not on screen.
+// The narrow-screen graph: the same courses, depth columns turned into
+// sections, status as an icon and a word (never colour alone), and the
+// selected course's chain marked so "what comes first" still reads.
+function SimpleGraph({
+  nodes,
+  selected,
+  role,
+  onPick,
+}: {
+  nodes: GraphPayload["nodes"];
+  selected: string | null;
+  role?: (id: string) => string | null;
+  onPick: (id: string) => void;
+}) {
+  const layers = new Map<number, GraphPayload["nodes"]>();
+  for (const n of [...nodes].sort((a, b) => a.id.localeCompare(b.id))) {
+    if (!layers.has(n.layer)) layers.set(n.layer, []);
+    layers.get(n.layer)!.push(n);
+  }
+  const ROLE: Record<string, { text: string; style: React.CSSProperties }> = {
+    selected: { text: "selected", style: { borderColor: "var(--ring)", borderWidth: 2 } },
+    required: { text: "must come first", style: { borderColor: "var(--chain-up)", borderWidth: 2 } },
+    alternative: { text: "one of a choice", style: { borderColor: "var(--chain-up)", borderWidth: 2, borderStyle: "dashed" } },
+    downstream: { text: "opens up", style: { borderColor: "var(--chain-down)", borderWidth: 2 } },
+  };
+  return (
+    <div className="flex flex-col gap-4 p-3 pb-24">
+      {[...layers.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([layer, list]) => (
+          <section key={layer}>
+            <h2 className="mb-1.5 text-xs uppercase tracking-wider text-muted-foreground">
+              {layer === 0 ? "No prerequisites" : `Depth ${layer}`}
+            </h2>
+            <ul className="grid gap-1.5 sm:grid-cols-2">
+              {list.map((n) => {
+                const r = role?.(n.id) ?? (n.id === selected ? "selected" : null);
+                const st = n.status ? STATUS[n.status] : null;
+                return (
+                  <li key={n.id}>
+                    <button
+                      onClick={() => onPick(n.id)}
+                      aria-pressed={n.id === selected}
+                      className="flex w-full items-start gap-2 rounded-md border border-border bg-surface p-2 text-left text-sm"
+                      style={r ? ROLE[r].style : undefined}
+                    >
+                      {st ? (
+                        <span
+                          className="mt-1 size-3 shrink-0 rounded-full border-2"
+                          style={{ background: st.fill, borderColor: st.stroke, borderStyle: st.dash ? "dashed" : "solid" }}
+                          aria-hidden
+                        />
+                      ) : null}
+                      <span className="min-w-0 flex-1">
+                        <span className="font-mono font-medium">{n.label}</span>
+                        <span className="block truncate text-xs text-muted-foreground">{n.title}</span>
+                        <span className="block text-[11px] text-muted-foreground">
+                          {[st?.label, r && r !== "selected" ? ROLE[r].text : null].filter(Boolean).join(" · ")}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+    </div>
+  );
+}
+
 function ChainList({
   title,
   items,

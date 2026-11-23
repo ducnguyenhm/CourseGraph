@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.config import settings
 from app.db import Base
-from app.models import catalog, program, student  # noqa: F401  — registers tables on Base.metadata
+from app.models import account, catalog, program, student  # noqa: F401  — registers tables on Base.metadata
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

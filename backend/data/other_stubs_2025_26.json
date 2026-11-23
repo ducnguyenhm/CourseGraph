@@ -1,0 +1,86 @@
+{
+  "catalog_year": "2025-2026",
+  "source": "DePauw University Catalog 2025-2026, course listings: ARTH 132 p. 56, ARTH 197 p. 60, JAPN 151-152 p. 369, REL 130 p. 520, SOC 237 p. 547",
+  "provenance": "Transcribed by Claude on 2026-10-28 for Checkpoint 3; not yet verified by the author. Only the courses the demo student's record needs, so the B.A. degree requirements have something to count. Checked by Claude on 2026-10-28 against the extracted catalog text: titles, credits, areas and prerequisite notes all match. Author sign-off still pending.",
+  "conventions": {
+    "scope": "Stubs, not a curated department: id, title, credits and Exploratory Foundations area only. Prerequisites are left null (JAPN 152 really requires JAPN 151); nothing downstream depends on them.",
+    "distribution": "The area the catalog prints first. Where it prints 'X-or-Y' (e.g. 'Arts and Humanities-or-Global Learning'), Y goes in attributes; the degree requirements mark those areas exclusive, so the course fills one of the two, never both.",
+    "FYS": "Courses numbered 197 titled 'First-Year Seminar' carry the attribute FYS. The catalog prints no area for them.",
+    "area_codes": "AH Arts and Humanities, SM Science and Mathematics, SS Social Science, LA Language, GL Global Learning, PPD Power, Privilege and Diversity (course listings print it 'Privilege, Power And Diversity')"
+  },
+  "courses": [],
+  "stub_courses": [
+    {
+      "id": "ARTH-197",
+      "subject": "ARTH",
+      "number": 197,
+      "title": "First-Year Seminar",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "attributes": [
+        "FYS"
+      ],
+      "prereq": null,
+      "notes": "Catalog: 'Open only to first-year students.'"
+    },
+    {
+      "id": "ARTH-132",
+      "subject": "ARTH",
+      "number": 132,
+      "title": "Later Art Histories: After 1400 C.E.",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "AH",
+      "prereq": null
+    },
+    {
+      "id": "JAPN-151",
+      "subject": "JAPN",
+      "number": 151,
+      "title": "Elementary Japanese I",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "LA",
+      "prereq": null
+    },
+    {
+      "id": "JAPN-152",
+      "subject": "JAPN",
+      "number": 152,
+      "title": "Elementary Japanese II",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "LA",
+      "prereq": null,
+      "notes": "Catalog prerequisite: JAPN 151 or qualifying score on the placement test. Not encoded (stub)."
+    },
+    {
+      "id": "REL-130",
+      "subject": "REL",
+      "number": 130,
+      "title": "Introduction to Religions",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "AH",
+      "attributes": [
+        "GL"
+      ],
+      "prereq": null,
+      "notes": "Catalog area: 'Arts and Humanities-or-Global Learning'."
+    },
+    {
+      "id": "SOC-237",
+      "subject": "SOC",
+      "number": 237,
+      "title": "Racial and Ethnic Relations",
+      "credits_min": 1.0,
+      "credits_max": 1.0,
+      "distribution": "SS",
+      "attributes": [
+        "PPD"
+      ],
+      "prereq": null,
+      "notes": "Catalog area: 'Social Science-or-Privilege, Power And Diversity'. Catalog prerequisite: SOC 100 or sophomore standing. Not encoded (stub)."
+    }
+  ]
+}

@@ -12,7 +12,7 @@ class Program(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     program_id: Mapped[str] = mapped_column(String(32), unique=True)
-    kind: Mapped[str] = mapped_column(String(8))  # 'major' | 'minor'
+    kind: Mapped[str] = mapped_column(String(8))  # 'major' | 'minor' | 'degree'
     name: Mapped[str] = mapped_column(String(128))
     department: Mapped[str] = mapped_column(String(8))
 
@@ -54,11 +54,12 @@ class Requirement(Base):
     - specific_course     — {"course_id": "CSC-121"}
     - n_from_set          — {"n": 2, "courses": [...]} or
                             {"n": 3, "subject": "CSC", "min_number": 300, "exclude": [...]}
-    - credit_minimum      — {"credits": 3, "subject"?: ..., "attribute"?: ...}
-    - attribute_count     — {"n": 1, "attribute": "W"}
+    - credit_minimum      — {"credits": 31, "subject"?, "min_number"?, "attribute"?,
+                             "scope"?: "record" | "program"}
+    - attribute_count     — {"n": 1, "attribute": "W", "scope"?, "exclusive"?,
+                             "distinct_subjects"?, "distinct_group"?}
 
-    Checkpoint 2 only reads which courses a program mentions; evaluating these
-    rules against a transcript is Checkpoint 3.
+    Evaluated against a student's record by `services/requirements.py`.
     """
 
     __tablename__ = "requirement"

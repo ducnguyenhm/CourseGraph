@@ -15,6 +15,7 @@ reported, so the order is not presented as more certain than it is.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from app.schemas.prereq import (
@@ -64,15 +65,32 @@ def _name(cid: str) -> str:
 
 
 class Orderer:
+    """Rounds from scratch by default (a program's order for a new student).
+
+    For one student, pass `done`: courses completed or in progress (with
+    whatever they count as) sit at round 0 and need nothing, so round 1 is
+    the student's next term. `terms_elapsed` is how many fall/spring terms
+    the student has finished or is finishing, so a senior-standing wait is
+    counted from where they are rather than from their first semester.
+    """
+
     def __init__(
-        self, trees: dict[str, PrereqNode], equivalences: dict[str, str] | None = None
+        self,
+        trees: dict[str, PrereqNode],
+        equivalences: dict[str, str] | None = None,
+        done: Iterable[str] = (),
+        terms_elapsed: int = 0,
     ):
         self.trees = trees
         self.eq = equivalences or {}
+        self.done = frozenset(done)
+        self.terms_elapsed = terms_elapsed
         self._memo: dict[str, Placement] = {}
         self._in_progress: set[str] = set()
 
     def place(self, course_id: str) -> Placement:
+        if course_id in self.done:
+            return Placement(0, frozenset(), ())
         if course_id in self._memo:
             return self._memo[course_id]
         if course_id in self._in_progress:
@@ -93,16 +111,24 @@ class Orderer:
         if isinstance(node, (CourseReq, CoreqReq)):
             cid = resolve(node.course_id, self.eq)
             p = self.place(cid)
-            # A coreq may share the course's term, so it delays nothing itself.
-            r = p.round - 1 if isinstance(node, CoreqReq) else p.round
-            return Placement(r, p.needs | {cid}, p.assumed, p.via_consent)
+            # A coreq may share the course's term, so it delays nothing itself
+            # (and one already done, at round 0, does not pull it earlier).
+            r = max(0, p.round - 1) if isinstance(node, CoreqReq) else p.round
+            # A course already done is not something this path still needs,
+            # so it does not make the branch through it look longer.
+            needs = p.needs if cid in self.done else p.needs | {cid}
+            return Placement(r, needs, p.assumed, p.via_consent)
         if isinstance(node, (ConsentReq, PlacementReq)):
             return Placement(0, frozenset(), (), via_consent=True)
         if isinstance(node, StandingReq):
-            if node.min_level and STANDING_ROUNDS[node.min_level]:
-                r = STANDING_ROUNDS[node.min_level]
-                note = f"{_name(owner)}: {node.min_level} standing, so not before semester {r + 1}"
-                return Placement(r, frozenset(), (note,))
+            wait = STANDING_ROUNDS[node.min_level] - self.terms_elapsed if node.min_level else 0
+            if wait > 0:
+                note = (
+                    f"{_name(owner)}: {node.min_level} standing, so not before semester {wait + 1}"
+                    if not self.terms_elapsed
+                    else f"{_name(owner)}: {node.min_level} standing, so not before term {wait + 1} from now"
+                )
+                return Placement(wait, frozenset(), (note,))
             return Placement(0, frozenset(), ())
         if isinstance(node, CourseLevelReq):
             # Optimistic: the earliest qualifying courses, taken in parallel —

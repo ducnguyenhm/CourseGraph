@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.api.auth import check_view, current_account
 from app.api.queries import (
     courses_of,
     equivalence_map,
@@ -10,6 +11,7 @@ from app.api.queries import (
 )
 from app.config import settings
 from app.db import get_session
+from app.models.account import Account
 from app.models.catalog import CourseVersion
 from app.schemas.course import ChainCourse, ChainResponse
 from app.schemas.prereq import normalize_id, parse
@@ -39,8 +41,12 @@ def get_graph(
     ),
     include_stubs: bool = False,
     catalog_year: str = Query(default_factory=lambda: settings.default_catalog_year),
+    account: Account | None = Depends(current_account),
     session: Session = Depends(get_session),
 ) -> dict:
+    # The catalog graph is public; a student's statuses on it are not.
+    if student:
+        check_view(session, account, student)
     # Depth is computed over the whole catalog year and only then filtered.
     # Loading just the filtered subjects would drop cross-department edges, so
     # CSC-380 would lose MATH-141 and slide into the wrong column under

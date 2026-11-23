@@ -1,4 +1,5 @@
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, Text, text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -24,6 +25,15 @@ class Student(Base):
     # Stored, not derived: deriving it needs a "current term" and a credits rule.
     class_standing: Mapped[str] = mapped_column(String(16))
     expected_graduation: Mapped[str] = mapped_column(String(8))  # '2027SP'
+    # The first term at the university. NULL: elapsed terms fall back on standing.
+    start_term: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    # Set by the student to override the term worked out from the record.
+    current_term: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    # Future terms the student took out of their plan (a semester away, a May
+    # Term skipped): the planner shows no column for them.
+    removed_terms: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
+    )
 
     programs: Mapped[list["StudentProgram"]] = relationship(cascade="all, delete-orphan")
     enrollments: Mapped[list["Enrollment"]] = relationship(cascade="all, delete-orphan")
@@ -55,6 +65,11 @@ class Enrollment(Base):
         CheckConstraint(
             "status IN ('completed', 'in_progress')", name="ck_enrollment_status"
         ),
+        CheckConstraint("competence IN ('W', 'Q', 'S')", name="ck_enrollment_competence"),
+        CheckConstraint(
+            "area_choice IN ('AH', 'SM', 'SS', 'LA', 'GL', 'PPD')",
+            name="ck_enrollment_area_choice",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -65,6 +80,12 @@ class Enrollment(Base):
     term: Mapped[str] = mapped_column(String(8))  # '2024FA'
     status: Mapped[str] = mapped_column(String(16))
     grade: Mapped[str | None] = mapped_column(String(4), nullable=True)
+    # W/Q/S certified in this section, if any. Per enrollment because the
+    # catalog offers the course with or without it (competence_variants).
+    competence: Mapped[str | None] = mapped_column(String(1), nullable=True)
+    # For a course printed "X-or-Y" (REL 130: AH or GL), the Foundations area
+    # the student wants it to count toward. NULL lets the engine choose.
+    area_choice: Mapped[str | None] = mapped_column(String(4), nullable=True)
 
 
 class PlanItem(Base):
@@ -79,3 +100,6 @@ class PlanItem(Base):
     )
     course_id: Mapped[int] = mapped_column(ForeignKey("course.id"))
     term: Mapped[str] = mapped_column(String(8))
+    # Why a placement the planner rejects was recorded anyway (consent, a
+    # waiver). NULL for an ordinary placement.
+    override_note: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -23,6 +23,7 @@ from pathlib import Path
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
+from app.models.account import Account, AdvisorAssignment
 from app.models.catalog import CatalogYear, Course, CourseEquivalence, CourseVersion
 from app.models.program import Program, ProgramVersion, Requirement
 from app.models.student import Enrollment, PlanItem, Student, StudentProgram
@@ -35,9 +36,11 @@ DEFAULT_FIXTURES = [
     "data/csc_catalog_2025_26.json",
     "data/math_catalog_2025_26.json",
     "data/econ_catalog_2025_26.json",
+    "data/other_stubs_2025_26.json",
 ]
 DEFAULT_PROGRAMS = "data/programs_2025_26.json"
 DEFAULT_STUDENTS = "data/demo_student.json"
+DEFAULT_ACCOUNTS = "data/demo_accounts.json"
 
 # Verbatim prerequisite sentences from the catalog PDF, kept apart from the
 # curated fixtures so the fixtures stay as published. Keyed by course id.
@@ -210,6 +213,8 @@ def upsert_students(session: Session, catalog_year: str, students: list[dict]) -
         student.catalog_year_id = year.id
         student.class_standing = s["class_standing"]
         student.expected_graduation = s["expected_graduation"]
+        student.start_term = s.get("start_term")
+        student.current_term = s.get("current_term")
         student.programs.clear()
         student.enrollments.clear()
         student.plan_items.clear()
@@ -224,6 +229,7 @@ def upsert_students(session: Session, catalog_year: str, students: list[dict]) -
                 term=e["term"],
                 status=e.get("status", "completed"),
                 grade=e.get("grade"),
+                competence=e.get("competence"),
             )
             for e in s.get("enrollments", [])
         )
@@ -235,6 +241,61 @@ def upsert_students(session: Session, catalog_year: str, students: list[dict]) -
     return len(students)
 
 
+def read_accounts(path: Path, student_ids: set[str]) -> list[dict]:
+    """A student account's key is its student's key; an advisor's advisees
+    must be seeded students."""
+    accounts = json.loads(path.read_text())["accounts"]
+    problems = []
+    for a in accounts:
+        if a["role"] not in ("student", "advisor"):
+            problems.append(f"account {a['key']}: bad role {a['role']!r}")
+        if a["role"] == "student" and a["key"] not in student_ids:
+            problems.append(f"student account {a['key']} has no seeded student")
+        for s in a.get("advisees", []):
+            if s not in student_ids:
+                problems.append(f"advisor {a['key']} advises unknown student {s}")
+    if problems:
+        raise CatalogError(f"{len(problems)} problem(s) found:\n" + "\n".join(f"  {p}" for p in problems))
+    return accounts
+
+
+def upsert_accounts(session: Session, accounts: list[dict]) -> int:
+    """Logins and advisor assignments, replaced from the fixture. Passwords
+    are hashed here; the fixture's are public demo passwords. Only the
+    assignments to fixture students are replaced: a student who signed up and
+    picked a seeded advisor keeps that advisor across a re-seed."""
+    from app.services.auth import hash_password
+
+    students = {s.student_key: s for s in session.scalars(select(Student))}
+    seeded = {k for a in accounts for k in a.get("advisees", [])} | {
+        a["key"] for a in accounts if a["role"] == "student"
+    }
+    seeded_ids = [students[k].id for k in seeded if k in students]
+    for a in accounts:
+        account = session.scalar(select(Account).where(Account.key == a["key"]))
+        if account is None:
+            account = Account(key=a["key"])
+            session.add(account)
+        account.role = a["role"]
+        student = students.get(a["key"]) if a["role"] == "student" else None
+        account.student_id = student.id if student else None
+        account.name = a.get("name") or (student.name if student else a["key"])
+        account.password_hash = hash_password(a["password"])
+        session.flush()
+        session.execute(
+            delete(AdvisorAssignment).where(
+                AdvisorAssignment.advisor_id == account.id,
+                AdvisorAssignment.student_id.in_(seeded_ids),
+            )
+        )
+        session.add_all(
+            AdvisorAssignment(advisor_id=account.id, student_id=students[k].id)
+            for k in a.get("advisees", [])
+        )
+    session.commit()
+    return len(accounts)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("fixtures", nargs="*", default=None)
@@ -244,6 +305,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--programs", default=DEFAULT_PROGRAMS)
     ap.add_argument("--students", default=DEFAULT_STUDENTS)
+    ap.add_argument("--accounts", default=DEFAULT_ACCOUNTS)
     args = ap.parse_args(argv)
 
     paths = [Path(p) for p in (args.fixtures or DEFAULT_FIXTURES)]
@@ -264,6 +326,11 @@ def main(argv: list[str] | None = None) -> int:
             if Path(args.students).exists()
             else []
         )
+        accounts = (
+            read_accounts(Path(args.accounts), {s["id"] for s in students})
+            if Path(args.accounts).exists()
+            else []
+        )
     except CatalogError as exc:
         print(f"refusing to load:\n{exc}", file=sys.stderr)
         return 1
@@ -272,7 +339,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"ok: {len(fixtures.entries)} courses, {len(fixtures.equivalences)} "
             f"equivalences, {len(fixtures.retired)} retired ids, {len(programs)} "
-            f"programs, {len(students)} students for {fixtures.catalog_year} "
+            f"programs, {len(students)} students, {len(accounts)} accounts for {fixtures.catalog_year} "
             f"— no dangling references, no cycles"
         )
         return 0
@@ -308,6 +375,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"seeded {upsert_programs(session, year, programs)} programs")
         if students and empty(select(func.count(Student.id))):
             print(f"seeded {upsert_students(session, year, students)} students")
+        if accounts and empty(select(func.count(Account.id))):
+            print(f"seeded {upsert_accounts(session, accounts)} accounts")
     return 0
 
 

@@ -114,8 +114,14 @@ class Result:
     unmet: list[str] = field(default_factory=list)
 
 
-def evaluate(node: PrereqNode, facts: StudentFacts) -> Result:
+def evaluate(
+    node: PrereqNode, facts: StudentFacts, *, alongside: Iterable[str] | None = None
+) -> Result:
+    """`alongside`: the courses planned for the same term, when the planner
+    knows them. A corequisite is then decided (met beside one of them, unmet
+    otherwise) instead of UNKNOWN, since registering for both is the plan."""
     sat = facts.satisfied
+    alongside = None if alongside is None else set(alongside)
 
     def has(ref: str) -> bool:
         return ref in sat or resolve(ref, facts.renumbering) in sat
@@ -129,7 +135,11 @@ def evaluate(node: PrereqNode, facts: StudentFacts) -> Result:
     if isinstance(node, CoreqReq):
         if has(node.course_id):
             return Result(Tri.TRUE)
-        return Result(Tri.UNKNOWN, [f"{label(node.course_id)} in the same term"])
+        if alongside is None:
+            return Result(Tri.UNKNOWN, [f"{label(node.course_id)} in the same term"])
+        if node.course_id in alongside or resolve(node.course_id, facts.renumbering) in alongside:
+            return Result(Tri.TRUE)
+        return Result(Tri.FALSE, [f"{label(node.course_id)} in the same term or earlier"])
     if isinstance(node, ConsentReq):
         return Result(Tri.UNKNOWN, [f"consent of the {node.by}"])
     if isinstance(node, PlacementReq):
@@ -158,13 +168,13 @@ def evaluate(node: PrereqNode, facts: StudentFacts) -> Result:
             return Result(Tri.TRUE)
         return Result(Tri.FALSE, [f"declared {node.program_id}"])
     if isinstance(node, AndReq):
-        results = [evaluate(c, facts) for c in node.children]
+        results = [evaluate(c, facts, alongside=alongside) for c in node.children]
         return Result(
             min(r.value for r in results),
             [u for r in results if r.value < Tri.TRUE for u in r.unmet],
         )
     if isinstance(node, OrReq):
-        results = [evaluate(c, facts) for c in node.children]
+        results = [evaluate(c, facts, alongside=alongside) for c in node.children]
         best = max(r.value for r in results)
         if best == Tri.TRUE:
             return Result(Tri.TRUE)

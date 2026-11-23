@@ -1,8 +1,8 @@
 """Which courses a program mentions.
 
-Checkpoint 2 needs requirements only for this: the program filter shows a
-program's courses, and the topological order is computed over them. Deciding
-whether a student *satisfies* a requirement is Checkpoint 3.
+The program filter shows a program's courses, and the topological order is
+computed over them. Deciding whether a student *satisfies* a requirement is
+`requirements.py`; this module only reads and checks the trees.
 """
 
 from __future__ import annotations
@@ -33,12 +33,43 @@ class RequirementRow:
     children: list["RequirementRow"] = field(default_factory=list)
 
 
+def _check_spec(rule: str, spec: dict, has_children: bool) -> None:
+    """Reject a node the engine could not evaluate, at seed time rather than
+    at the first audit."""
+    def need(*keys: str) -> None:
+        missing = [k for k in keys if k not in spec]
+        if missing:
+            raise ValueError(f"{rule} needs {', '.join(missing)}")
+
+    if rule in ("all_of", "any_of"):
+        if not has_children:
+            raise ValueError(f"{rule} has no children")
+        return
+    if has_children:
+        raise ValueError(f"{rule} cannot have children")
+    if rule == "specific_course":
+        need("course_id")
+    elif rule == "n_from_set":
+        need("n")
+        if "courses" not in spec and "subject" not in spec:
+            raise ValueError("n_from_set needs 'courses' or 'subject'")
+    elif rule == "credit_minimum":
+        need("credits")
+    elif rule == "attribute_count":
+        need("n", "attribute")
+        if spec.get("distinct_group") and not spec.get("exclusive"):
+            raise ValueError("distinct_group only applies to an exclusive attribute_count")
+    if spec.get("scope", "record") not in ("record", "program"):
+        raise ValueError(f"unknown scope {spec['scope']!r}")
+
+
 def to_rows(node: dict) -> RequirementRow:
     """A fixture requirement node -> a row tree, ids normalised."""
     rule = node["rule"]
     if rule not in RULE_TYPES:
         raise ValueError(f"unknown requirement rule {rule!r}")
     spec = {k: v for k, v in node.items() if k not in STRUCTURAL}
+    _check_spec(rule, spec, bool(node.get("children")))
     if "course_id" in spec:
         spec["course_id"] = normalize_id(spec["course_id"])
     for key in ("courses", "exclude"):
